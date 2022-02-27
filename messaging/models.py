@@ -1,34 +1,30 @@
 from django.contrib.auth.models import User
-from phonenumber_field.modelfields import PhoneNumberField
 from django.db import models
 
 # Create your models here.
-'''
-- userId:int
-- username:string
-- password:string
-- email:string
-- phone number:string
-- bio:string
-- profile picture:image
-- wallet:int
-- display_points:bool
-- points:int
-- backpack:[Item]
-- display_purchases:bool
-- purchases:[Purchase]
-'''
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    phoneNumber = PhoneNumberField(blank=True)
+    bio = models.TextField(max_length=200, null=True, blank=True)
+    #picture = models.ImageField()
+    wallet = models.IntegerField(default=0)
+    displayPoints = models.BooleanField(default=False)
+    points = models.IntegerField(default=0)
+    #backpack = models.ManyToManyField(Item)
+    displayPurchases = models.BooleanField(default=False)
+    #purchases = models.ManyToManyField(Purchase)
+
+    def __str__(self):
+        name = self.user.first_name + ' ' + self.user.last_name
+        return name
+    
     
     
 
 
 class Conversation(models.Model):
     """Model controlling the entire set of messages sent back-and-forth between users."""
-    members = models.ManyToManyField(User, related_name='members', blank=False)
+    members = models.ManyToManyField(Profile, related_name='members', blank=False)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 
@@ -47,7 +43,7 @@ class Conversation(models.Model):
 
 class Message(models.Model):
     """Model controlling an individual message sent by a user."""
-    sender = models.ForeignKey(User, on_delete=models.CASCADE)
+    sender = models.ForeignKey(Profile, on_delete=models.CASCADE)
     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
