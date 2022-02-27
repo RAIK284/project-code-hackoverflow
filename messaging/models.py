@@ -1,7 +1,31 @@
 from django.db import models
 from django.contrib.auth.models import User
+from phonenumber_field.modelfields import PhoneNumberField
 
 # Create your models here.
+'''
+- userId:int
+- username:string
+- password:string
+- email:string
+- phone number:string
+- bio:string
+- profile picture:image
+- wallet:int
+- display_points:bool
+- points:int
+- backpack:[Item]
+- display_purchases:bool
+- purchases:[Purchase]
+'''
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    phoneNumber = PhoneNumberField(blank=True)
+    
+    
+
+
 class Conversation(models.Model):
     members = models.ManyToManyField(User, related_name='members', blank=False)
     updated = models.DateTimeField(auto_now=True)
