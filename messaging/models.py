@@ -23,7 +23,8 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     phoneNumber = PhoneNumberField(blank=True)
     
-    
+    def __str__(self):
+        return self.user.name
 
 
 class Conversation(models.Model):

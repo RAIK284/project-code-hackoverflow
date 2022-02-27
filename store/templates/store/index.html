@@ -1,5 +1,17 @@
 {% extends 'main.html' %}
 
 {% block content %}
-<h1>Hello, World</h1>
+
+<h1>Store</h1>
+<hr>
+
+{% for product in products %}
+    <div>
+        <h5>{{ product.name }}</h5>
+        <p>Cost: {{ product.point_cost }} points</p>
+        <p>{{ product.amount_sold }} sold</p>
+        <hr>
+    </div>
+{% endfor %}
+
 {% endblock %}
