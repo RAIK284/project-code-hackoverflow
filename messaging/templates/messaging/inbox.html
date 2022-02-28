@@ -1,0 +1,14 @@
+{% extends 'main.html' %} {% block content %}
+
+<div class="inbox-container">
+  <a href="{% url 'send' %}">New Message</a>
+  <div>
+    {% for message in messages %}
+    <a href="{% url 'conversation' message.conversation.id %}"
+      >{{message.body}}</a
+    >
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

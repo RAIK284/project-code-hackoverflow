@@ -24,7 +24,7 @@ class Profile(models.Model):
 
 class Conversation(models.Model):
     """Model controlling the entire set of messages sent back-and-forth between users."""
-    members = models.ManyToManyField(Profile, related_name='members', blank=False)
+    members = models.ManyToManyField(User, related_name='members', blank=False)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 
@@ -32,22 +32,23 @@ class Conversation(models.Model):
         # Show the most recently updated messages first
         ordering = ['-updated', '-created']
 
-    def __str__(self):
-        # Create a comma-separated list of members in a conversation
-        name = ''
-        for i, user in self.members:
-            if i > 0:
-                name += ', '
-            name += user.name
-        return name
+    # def __str__(self):
+    #     # Create a comma-separated list of members in a conversation
+    #     name = ''
+    #     for i, user in self.members:
+    #         if i > 0:
+    #             name += ', '
+    #         name += user.name
+    #     return name
 
 class Message(models.Model):
     """Model controlling an individual message sent by a user."""
-    sender = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    sender = models.ForeignKey(User, on_delete=models.CASCADE)
     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
     body = models.TextField()
+    read = models.BooleanField(default=False)
 
     # Track the number of token points in the message, if applicable
     points = models.IntegerField()
