@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from .forms import ProfileCreateForm
+from django.db.models import Count
 from .models import Profile, Conversation, Message
 
 
@@ -66,3 +67,17 @@ def sendMessage(request):
 def conversation(request, pk):
     context = {}
     return render(request, 'messaging/conversation.html', context)
+
+def leaderboard(request):
+    user_points = Profile.objects.values('points', 'user', 'displayPoints').order_by('-points')[:10]
+    user_names = []
+    points = []
+    for obj in user_points:
+        if obj['displayPoints'] == True:
+            user = obj['user']
+            point = obj['points']
+            points.append(point)
+            user_names.append(User.objects.get(id = user).get_full_name())
+    user_data = zip(user_names, points)
+    context = {'users': user_data}
+    return render(request, 'messaging/leaderboard.html', context)
