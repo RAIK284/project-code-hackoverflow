@@ -1,12 +1,21 @@
 from django.db import models
 from messaging.models import Profile
+import os
+
+def get_image_path(instance, filename):
+    """
+    Gets the system path for an image to display.
+    
+    Taken from: https://stackoverflow.com/a/8192232/5696057
+    """
+    return os.path.join('product_images', str(instance.id), filename)
 
 class Product(models.Model):
     """Model representing an item in the store."""
     name = models.CharField(max_length=50)
     point_cost = models.IntegerField()
     amount_sold = models.IntegerField()
-    image = models.ImageField(upload_to='product_images/') # TODO: How to fetch
+    image = models.ImageField(upload_to=get_image_path) # TODO: How to fetch
 
     class Meta:
         # Order items alphabetically by default
