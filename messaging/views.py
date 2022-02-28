@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from .forms import ProfileCreateForm
-from .models import Profile
+from .models import Profile, Conversation, Message
 
 
 def loginPage(request):
@@ -13,7 +13,7 @@ def loginPage(request):
     page = 'login'
 
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect('inbox')
     if request.method == 'POST':
         username = request.POST.get('username').lower()
         password = request.POST.get('password')
@@ -27,7 +27,7 @@ def loginPage(request):
 
         if user is not None:
             login(request, user)
-            return redirect('home')
+            return redirect('inbox')
         else:
             messages.error(request, 'Username or password does not exist')
     context = {'page': page}
@@ -35,8 +35,7 @@ def loginPage(request):
 
 def logoutUser(request):
     logout(request)
-    return redirect('home')
-
+    return redirect('inbox')
 
 def registerUserPage(request):
     form = ProfileCreateForm()
@@ -49,13 +48,21 @@ def registerUserPage(request):
             user.save()
             profile.save()
             login(request, user)
-            return redirect('home')
+            return redirect('inbox')
         else:
             messages.error(request, 'An error occured during registration')
 
     return render(request, 'messaging/login_register.html', {'form': form})
 
+def inbox(request):
+    messages = Message.objects.filter(conversation__members__in=[request.user.id])
+    context = {'messages':messages}
+    return render(request, 'messaging/inbox.html', context)
 
-def home(request):
+def sendMessage(request):
     context = {}
-    return render(request, 'messaging/home.html', context)
+    return render(request, 'messaging/send_message.html', context)
+
+def conversation(request, pk):
+    context = {}
+    return render(request, 'messaging/conversation.html', context)
