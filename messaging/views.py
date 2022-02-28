@@ -6,6 +6,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from .forms import ProfileCreateForm
 from .models import Profile
+from django.db.models import Count
 
 
 def loginPage(request):
@@ -59,3 +60,21 @@ def registerUserPage(request):
 def home(request):
     context = {}
     return render(request, 'messaging/home.html', context)
+
+def leaderboard(request):
+    user_points = Profile.objects.values('points', 'user', 'displayPoints').order_by('-points')[:10]
+    user_names = []
+    points = []
+    for obj in user_points:
+        if obj['displayPoints'] == True:
+            user = obj['user']
+            point = obj['points']
+            points.append(point)
+            user_names.append(User.objects.get(id = user).get_full_name())
+    user_data = zip(user_names, points)
+    #name_users = []
+    #for user in users:
+    #    new_user = Profile.objects.get(user = 1)    
+    #    name_users.append(new_user)
+    context = {'users': user_data}
+    return render(request, 'messaging/leaderboard.html', context)
