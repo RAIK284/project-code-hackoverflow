@@ -72,9 +72,5 @@ def leaderboard(request):
             points.append(point)
             user_names.append(User.objects.get(id = user).get_full_name())
     user_data = zip(user_names, points)
-    #name_users = []
-    #for user in users:
-    #    new_user = Profile.objects.get(user = 1)    
-    #    name_users.append(new_user)
     context = {'users': user_data}
     return render(request, 'messaging/leaderboard.html', context)
