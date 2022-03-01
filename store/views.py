@@ -7,3 +7,9 @@ def index(request):
 
     context = {'products': products}
     return render(request, 'store/index.html', context)
+
+def buy(request, pk):
+    product = Product.objects.get(id=pk)
+
+    context = {'product': product}
+    return render(request, 'store/buy.html', context)

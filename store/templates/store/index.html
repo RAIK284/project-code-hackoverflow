@@ -7,10 +7,14 @@
 
 {% for product in products %}
     <div>
-        <h5>{{ product.name }}</h5>
+        <h2>{{ product.name }}</h2>
         <p>Cost: {{ product.point_cost }} points</p>
         <p>{{ product.amount_sold }} sold</p>
-        <img src="{{ product.image.url }}" alt="connect" style="max-height:300px">
+        <img src="{{ product.image.url }}" style="max-height:300px">
+
+        <div>
+            <a href="{% url 'buy' product.id %}">Buy</a>
+        </div>
         <hr>
     </div>
 {% endfor %}

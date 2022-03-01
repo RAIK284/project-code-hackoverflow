@@ -11,11 +11,15 @@ def get_image_path(instance, filename):
     return os.path.join('product_images', str(instance.id), filename)
 
 class Product(models.Model):
-    """Model representing an item in the store."""
-    name = models.CharField(max_length=50)
+    """
+    Model representing an item in the store.
+    
+    Note: We want products to only be editable in the admin page.
+    """
+    name = models.CharField(max_length=50, unique=True)
     point_cost = models.IntegerField()
     amount_sold = models.IntegerField()
-    image = models.ImageField(upload_to=get_image_path) # TODO: How to fetch
+    image = models.ImageField(upload_to=get_image_path)
 
     class Meta:
         # Order items alphabetically by default
