@@ -1,3 +1,36 @@
 {% extends 'main.html' %} {% block content %}
-<div>Conversations will go here</div>
-{% endblock content %}
+
+<!-- Adds style to each of the messages -->
+<style>
+	.conversation p {
+		padding: 8px;
+		margin: 25px;
+
+		/* other styling */
+		background-color: #04aa6d;
+		border-radius: 10px;
+		color: white;
+		font-family: Avenir;
+	}
+</style>
+
+<div class="conversation">
+	<h3>{{convo.name}}</h3>
+	<div>
+		Members:
+		<br />
+		{% for name in members %} {{name}}
+		<br />
+		{% endfor %}
+	</div>
+	<hr />
+	{% for message in messages %}
+	<div>
+		{% if message.sender.first_name == first_name %}
+		<p>You: {{message.body}}</p>
+		{% else %}
+		<p>{{message.sender.first_name}}: {{message.body}}</p>
+		{% endif %}
+	</div>
+</div>
+{% endfor %} {% endblock content %}

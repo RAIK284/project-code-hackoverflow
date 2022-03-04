@@ -1,7 +1,8 @@
-from .models import Profile
+from .models import Conversation, Profile, Message
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
+from django.forms import ModelForm
 
 class ProfileCreateForm(UserCreationForm):
     first_name = forms.CharField(max_length=30, required=True)
@@ -23,3 +24,13 @@ class ProfileCreateForm(UserCreationForm):
             user.save()
             profile.save()
         return user, profile
+
+class MessageSend(ModelForm):
+    conversation_name = forms.CharField(max_length=30, required=True)
+    send_to = forms.CharField(required=True)
+    body = forms.CharField(widget=forms.Textarea, required=True)
+
+    class Meta:
+        model = Message
+        fields = ['body']
+        exclude = ['host', 'participants']

@@ -24,6 +24,7 @@ class Profile(models.Model):
 
 class Conversation(models.Model):
     """Model controlling the entire set of messages sent back-and-forth between users."""
+    name = models.CharField(max_length=30, default="Conversation")
     members = models.ManyToManyField(User, related_name='members', blank=False)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)

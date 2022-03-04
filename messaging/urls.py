@@ -9,5 +9,6 @@ urlpatterns = [
     path('leaderboard/', views.leaderboard, name='leaderboard'),
     path('sendMessage', views.sendMessage, name='send'),
     path('conversation/<str:pk>', views.conversation, name='conversation'),
+    path('createConvo', views.createConvo, name='createConvo'),
     path('', views.inbox, name='inbox'),
 ]

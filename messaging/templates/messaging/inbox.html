@@ -1,13 +1,59 @@
 {% extends 'main.html' %} {% block content %}
 
+<style>
+  .inbox-container p {
+    padding: 8px;
+    margin: 25px;
+
+    /* other styling */
+    background-color: #04aa6d;
+    border-radius: 10px;
+    color: white;
+    text-decoration: none;
+    font-family: Avenir;
+  }
+  .inbox-container a {
+    color: #f2f2f2;
+    border-radius: 10px;
+    text-align: left;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+  }
+  .inbox-container a:hover {
+    background-color: #ddd;
+    border-radius: 10px;
+    color: black;
+  }
+
+  .inbox-container g {
+    color: #f2f2f2;
+    text-align: left;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+  }
+  .inbox-container g:hover {
+    background-color: #04aa6d;
+    border-radius: 10px;
+    color: black;
+  }
+</style>
+
 <div class="inbox-container">
-  <a href="{% url 'send' %}">New Message</a>
+  <h1>Inbox</h1>
+  <hr />
   <div>
-    {% for message in messages %}
-    <a href="{% url 'conversation' message.conversation.id %}"
-      >{{message.body}}</a
-    >
+    {% for convo in convos %}
+    <p>
+      <a href="{% url 'conversation' convo.id %}">
+        {{convo.name}}: {% for user in convo.members.all %}
+        {{user.username}},{%endfor%} &emsp;{{message.body}}
+      </a>
+    </p>
+    <hr />
     {% endfor %}
+    <p><a href="{% url 'createConvo' %}">New Message</a></p>
   </div>
 </div>
 

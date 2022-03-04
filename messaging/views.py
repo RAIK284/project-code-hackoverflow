@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
-from .forms import ProfileCreateForm
+from .forms import ProfileCreateForm, MessageSend
 from django.db.models import Count
 from .models import Profile, Conversation, Message
 
@@ -56,8 +56,8 @@ def registerUserPage(request):
     return render(request, 'messaging/login_register.html', {'form': form})
 
 def inbox(request):
-    messages = Message.objects.filter(conversation__members__in=[request.user.id])
-    context = {'messages':messages}
+    convos = Conversation.objects.filter(members__in=[request.user.id])
+    context = {'convos':convos}
     return render(request, 'messaging/inbox.html', context)
 
 def sendMessage(request):
@@ -65,7 +65,13 @@ def sendMessage(request):
     return render(request, 'messaging/send_message.html', context)
 
 def conversation(request, pk):
-    context = {}
+    convo = Conversation.objects.get(id=pk)
+    messages = Message.objects.filter(conversation=convo)
+    members = []
+    for member in convo.members.all():
+        members.append(member.get_full_name())
+    first_name = request.user.first_name
+    context = {'convo':convo, 'messages':messages, 'first_name':first_name, 'members':members}
     return render(request, 'messaging/conversation.html', context)
 
 def leaderboard(request):
@@ -81,3 +87,28 @@ def leaderboard(request):
     user_data = zip(user_names, points)
     context = {'users': user_data}
     return render(request, 'messaging/leaderboard.html', context)
+
+@login_required(login_url='login')
+def createConvo(request):
+    form = MessageSend()
+    if request.method == 'POST':
+        conversation_name = request.POST.get('conversation_name')
+        sendTo = request.POST.get('send_to')
+        sendToList = sendTo.split(",")
+        body = request.POST.get('body')
+        users = User.objects.filter(username=sendToList)
+        convo, created = Conversation.objects.get_or_create(members=users)
+        convo.save()
+        for name in sendToList:
+            convo.members.add(request.user, User.objects.get(username=name))
+
+
+        Message.objects.create(
+            sender=request.user,
+            conversation=convo,
+            body=body,
+            points=0,
+        )
+        return redirect('conversation', pk=convo.id)
+    context = {'form': form}
+    return render(request, 'messaging/new_convo.html', context)

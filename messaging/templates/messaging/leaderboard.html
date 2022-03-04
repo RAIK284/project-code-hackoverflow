@@ -1,12 +1,9 @@
-{% extends 'main.html' %} 
-{% block content %}
+{% extends 'main.html' %} {% block content %}
 
-
-<hr>
+<p>Leaderboard</p>
+<hr />
 {% for user, points in users %}
 <a>{{user}}</a>
 <a>{{points}}</a>
-<hr>
-{% endfor %}
-
-{% endblock %}
+<hr />
+{% endfor %} {% endblock %}
