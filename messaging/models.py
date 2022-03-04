@@ -1,12 +1,14 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-# Create your models here.
-
 class Profile(models.Model):
+    """Model representing a user's profile with all of their important information regarding the store and messaging."""
+    # Profile information/settings
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     bio = models.TextField(max_length=200, null=True, blank=True)
     #picture = models.ImageField()
+    
+    # Store information
     wallet = models.IntegerField(default=0)
     displayPoints = models.BooleanField(default=False)
     points = models.IntegerField(default=0)
@@ -18,10 +20,6 @@ class Profile(models.Model):
         name = self.user.first_name + ' ' + self.user.last_name
         return name
     
-    
-    
-
-
 class Conversation(models.Model):
     """Model controlling the entire set of messages sent back-and-forth between users."""
     members = models.ManyToManyField(User, related_name='members', blank=False)
@@ -32,14 +30,16 @@ class Conversation(models.Model):
         # Show the most recently updated messages first
         ordering = ['-updated', '-created']
 
-    # def __str__(self):
-    #     # Create a comma-separated list of members in a conversation
-    #     name = ''
-    #     for i, user in self.members:
-    #         if i > 0:
-    #             name += ', '
-    #         name += user.name
-    #     return name
+    """
+    def __str__(self):
+        # Create a comma-separated list of members in a conversation
+        name = ''
+        for i, user in self.members:
+            if i > 0:
+                name += ', '
+            name += user.name
+        return name
+    """
 
 class Message(models.Model):
     """Model controlling an individual message sent by a user."""
