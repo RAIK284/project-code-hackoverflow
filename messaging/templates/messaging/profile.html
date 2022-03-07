@@ -1,0 +1,19 @@
+{% extends 'main.html' %} {% block content %}
+<style>
+	.profile-page {
+		text-align: center;
+		border: 3px solid green;
+	}
+</style>
+<body>
+	<center>
+		<div class="profile-page">
+			<h1>@{{user.username}}</h1>
+			<h3>{{user.get_full_name}}</h3>
+			<h4>{{user.email}}</h4>
+			<div class="bio">Bio goes here</div>
+		</div>
+	</center>
+</body>
+
+{% endblock content %}

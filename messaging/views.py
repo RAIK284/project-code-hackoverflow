@@ -74,6 +74,13 @@ def conversation(request, pk):
     context = {'convo':convo, 'messages':messages, 'first_name':first_name, 'members':members}
     return render(request, 'messaging/conversation.html', context)
 
+@login_required(login_url='login')
+def profile(request, pk):
+    user = User.objects.get(id=pk)
+    #profile = Profile.objects.get(user=user)
+    context = {'user':user}
+    return render(request, 'messaging/profile.html', context)
+
 def leaderboard(request):
     user_points = Profile.objects.values('points', 'user', 'displayPoints').order_by('-points')[:10]
     user_names = []
