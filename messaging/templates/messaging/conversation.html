@@ -15,22 +15,27 @@
 </style>
 
 <div class="conversation">
-	<h3>{{convo.name}}</h3>
+	<h3>{{ convo.name }}</h3>
+
 	<div>
 		Members:
 		<br />
-		{% for name in members %} {{name}}
+		{% for name in members %} {{ name }}
 		<br />
 		{% endfor %}
 	</div>
+
 	<hr />
+
 	{% for message in messages %}
 	<div>
 		{% if message.sender.first_name == first_name %}
-		<p>You: {{message.body}}</p>
+			<p>You: {{ message.body }}</p>
 		{% else %}
-		<p>{{message.sender.first_name}}: {{message.body}}</p>
+			<p>{{ message.sender.first_name }}: {{ message.body }}</p>
 		{% endif %}
 	</div>
-</div>
-{% endfor %} {% endblock content %}
+	{% endfor %}
+</div> 
+
+{% endblock %}

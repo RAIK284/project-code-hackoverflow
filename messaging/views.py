@@ -1,13 +1,11 @@
-from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
-from .forms import ProfileCreateForm, MessageSend
-from django.db.models import Count
-from .models import Profile, Conversation, Message
+from django.shortcuts import render, redirect
 
+from .forms import ProfileCreateForm, MessageSend
+from .models import Profile, Conversation, Message
 
 def loginPage(request):
 
