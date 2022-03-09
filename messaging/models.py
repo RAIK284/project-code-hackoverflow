@@ -1,8 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-# Create your models here.
-
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     bio = models.TextField(max_length=200, null=True, blank=True)
@@ -17,10 +15,6 @@ class Profile(models.Model):
     def __str__(self):
         name = self.user.first_name + ' ' + self.user.last_name
         return name
-    
-    
-    
-
 
 class Conversation(models.Model):
     """Model controlling the entire set of messages sent back-and-forth between users."""
@@ -58,6 +52,7 @@ class Message(models.Model):
         return self.body[:50]
 
 class Token(models.Model):
+    """Model to store data on what tokens are worth which values."""
     points = models.IntegerField()
 
     # Track the emoji/emoticon used

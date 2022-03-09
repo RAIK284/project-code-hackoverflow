@@ -51,8 +51,8 @@
 		{% for convo in convos %}
 		<p>
 			<a href="{% url 'conversation' convo.id %}">
-				{{convo.name}}: {% for user in convo.members.all %}
-				{{user.username}},{%endfor%} &emsp;{{message.body}}
+				{{ convo.name }}: {% for user in convo.members.all %}
+				{{ user.username }},{% endfor %} &emsp;{{ message.body }}
 			</a>
 		</p>
 		<hr />
