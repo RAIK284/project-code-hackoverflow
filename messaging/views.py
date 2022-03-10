@@ -4,9 +4,13 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
+from matplotlib import use
 from .forms import ProfileCreateForm, MessageSend
-from django.db.models import Count
-from .models import Profile, Conversation, Message
+from django.db.models import Count, Q
+from django.core.exceptions import ObjectDoesNotExist
+import operator
+from .models import Profile, Conversation, Message, UserGroup
+from functools import reduce
 
 
 def loginPage(request):
@@ -56,8 +60,18 @@ def registerUserPage(request):
     return render(request, 'messaging/login_register.html', {'form': form})
 
 def inbox(request):
-    convos = Conversation.objects.filter(members__in=[request.user.id])
-    context = {'convos':convos}
+    convos = Conversation.objects.filter(userGroup__members__in=[request.user.id])
+    convoNames = []
+    for convo in convos:
+        allUsernames = convo.name.split('-')
+        nameString = ""
+        for username in allUsernames:
+            if username is not request.user.username:
+                nameString += User.objects.get(username=username).get_full_name() + ', '
+        nameString = nameString[:-2]
+        convoNames.append(nameString)
+        
+    context = {'convos':convos, 'convoNames':convoNames}
     return render(request, 'messaging/inbox.html', context)
 
 def sendMessage(request):
@@ -68,7 +82,7 @@ def conversation(request, pk):
     convo = Conversation.objects.get(id=pk)
     messages = Message.objects.filter(conversation=convo)
     members = []
-    for member in convo.members.all():
+    for member in convo.userGroup.members.all():
         members.append(member.get_full_name())
     first_name = request.user.first_name
     context = {'convo':convo, 'messages':messages, 'first_name':first_name, 'members':members}
@@ -77,8 +91,8 @@ def conversation(request, pk):
 @login_required(login_url='login')
 def profile(request, pk):
     user = User.objects.get(id=pk)
-    #profile = Profile.objects.get(user=user)
-    context = {'user':user}
+    profile = user.profile
+    context = {'user':user, 'profile':profile}
     return render(request, 'messaging/profile.html', context)
 
 def leaderboard(request):
@@ -99,15 +113,27 @@ def leaderboard(request):
 def createConvo(request):
     form = MessageSend()
     if request.method == 'POST':
-        conversation_name = request.POST.get('conversation_name')
         sendTo = request.POST.get('send_to')
+        sendTo = sendTo.replace(" ", "")
         sendToList = sendTo.split(",")
+        sendToList.append(request.user.username)
+        groupName = "-".join(sendToList)
         body = request.POST.get('body')
-        users = User.objects.filter(username=sendToList)
-        convo, created = Conversation.objects.get_or_create(members=users)
-        convo.save()
-        for name in sendToList:
-            convo.members.add(request.user, User.objects.get(username=name))
+
+        convo = None
+        userGroup = None
+        userGroupQSet = UserGroup.objects.filter(reduce(operator.and_, (Q(name__icontains=x) for x in sendToList)))
+        if not userGroupQSet.exists():
+            userGroup = UserGroup.objects.create(name=groupName)
+            userGroup.save()
+            for username in sendToList:
+                userGroup.members.add(User.objects.get(username=username))
+            convo = Conversation.objects.create(name = groupName, userGroup=userGroup)
+            convo.save()
+            convo.name = groupName
+        else:
+            userGroup = UserGroup.objects.get(id=userGroupQSet[0].id)
+            convo = userGroup.conversation
 
 
         Message.objects.create(

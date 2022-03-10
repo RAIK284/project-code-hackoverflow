@@ -18,14 +18,16 @@ class Profile(models.Model):
         name = self.user.first_name + ' ' + self.user.last_name
         return name
     
-    
+class UserGroup(models.Model):
+    name = models.TextField(max_length=400)
+    members = models.ManyToManyField(User, related_name='members')
     
 
 
 class Conversation(models.Model):
     """Model controlling the entire set of messages sent back-and-forth between users."""
-    name = models.CharField(max_length=30, default="Conversation")
-    members = models.ManyToManyField(User, related_name='members', blank=False)
+    name = models.TextField(max_length=400, default="Conversation")
+    userGroup = models.OneToOneField(UserGroup, on_delete=models.CASCADE, null=True)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 

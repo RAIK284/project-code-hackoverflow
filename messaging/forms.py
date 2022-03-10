@@ -28,7 +28,6 @@ class ProfileCreateForm(UserCreationForm):
         return user, profile
 
 class MessageSend(ModelForm):
-    conversation_name = forms.CharField(max_length=30, required=True)
     send_to = forms.CharField(required=True)
     body = forms.CharField(widget=forms.Textarea, required=True)
 

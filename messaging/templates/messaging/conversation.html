@@ -24,13 +24,11 @@
 		{% endfor %}
 	</div>
 	<hr />
-	{% for message in messages %}
-	<div>
-		{% if message.sender.first_name == first_name %}
-		<p>You: {{message.body}}</p>
-		{% else %}
-		<p>{{message.sender.first_name}}: {{message.body}}</p>
-		{% endif %}
-	</div>
+	{% for message in messages %} {% if message.sender.first_name == first_name %}
+	<p>You: {{message.body}}</p>
+	{% else %}
+	<p>{{message.sender.first_name}}: {{message.body}}</p>
+	{% endif %}
+	<hr />
 </div>
 {% endfor %} {% endblock content %}
