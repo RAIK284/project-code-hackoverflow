@@ -128,6 +128,18 @@ def leaderboard(request):
 
 @login_required(login_url='login')
 def create_convo(request):
+
+    def makeGroupConvo(groupName, sendToList):
+        userGroup = UserGroup.objects.create(name=groupName)
+        userGroup.save()
+        for username in sendToList:
+            userGroup.members.add(User.objects.get(username=username))
+        convo = Conversation.objects.create(name = groupName, userGroup=userGroup)
+        convo.save()
+        convo.name = groupName
+        return userGroup, convo
+        
+
     """View to create a conversation."""
     form = MessageSend()
 
@@ -143,16 +155,13 @@ def create_convo(request):
         userGroup = None
         userGroupQSet = UserGroup.objects.filter(reduce(operator.and_, (Q(name__icontains=x) for x in sendToList)))
         if not userGroupQSet.exists():
-            userGroup = UserGroup.objects.create(name=groupName)
-            userGroup.save()
-            for username in sendToList:
-                userGroup.members.add(User.objects.get(username=username))
-            convo = Conversation.objects.create(name = groupName, userGroup=userGroup)
-            convo.save()
-            convo.name = groupName
+            userGroup, convo = makeGroupConvo(groupName, sendToList)
         else:
             userGroup = UserGroup.objects.get(id=userGroupQSet[0].id)
-            convo = userGroup.conversation
+            if userGroup.members.all().count() > len(sendToList):
+                userGroup, convo = makeGroupConvo(groupName, sendToList)
+            else:
+                convo = userGroup.conversation
 
         Message.objects.create(
             sender=request.user,
@@ -162,6 +171,8 @@ def create_convo(request):
         )
 
         return redirect('conversation', pk=convo.id)
+
+        
     
     context = {'form': form}
     return render(request, 'messaging/new_convo.html', context)
