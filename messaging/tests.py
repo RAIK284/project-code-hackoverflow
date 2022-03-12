@@ -4,23 +4,10 @@ from django.urls import reverse
 
 from .models import Profile
 
-# Model Tests
-class ConversationModelTests(TestCase):
-    pass
-
-class MessageModelTests(TestCase):
-    pass
-
-class ProfileModelTests(TestCase):
-    pass
-
-# View Tests
-class InboxViewTests(TestCase):
-    pass
-
+# Helper Functions
 def create_profile(username: str, first_name: str, last_name: str, display_points: bool, points: int) -> Profile:
     """
-    Creates a profile for a user.
+    Helper function that creates a profile for a user.
 
     :param username - the username to use
     :param first_name - user's first name
@@ -34,12 +21,19 @@ def create_profile(username: str, first_name: str, last_name: str, display_point
 
 def get_user_full_name(profile: Profile) -> str:
     """
-    Gets a user's full name from a Profile Model.
+    Helper function that gets a user's full name from a Profile Model.
     
     :param profile - Profile Model
     :return the username as a str
     """
     return User.objects.get(id=profile.user.id).get_full_name()
+
+# View Tests
+class ConversationViewTests(TestCase):
+    pass
+
+class InboxViewTests(TestCase):
+    pass
 
 class LeaderboardViewTests(TestCase):
     def test_no_users(self):
@@ -59,6 +53,40 @@ class LeaderboardViewTests(TestCase):
         profile = create_profile("jsmith", "John", "Smith", True, 10)
         user_full_name = get_user_full_name(profile)
         expected_user_data = [(user_full_name, profile.points)]
+
+        response = self.client.get(reverse('leaderboard'))
+        self.assertQuerysetEqual(
+            response.context['users'],
+            expected_user_data
+        )
+
+    def test_several_users_mix(self):
+        """Tests that the leaderboard only shows public profiles and orders them by points descending."""
+        public1 = create_profile("public1", "Public", "One", display_points=True, points=10)
+        public2 = create_profile("public2", "Public", "Two", display_points=True, points=20)
+        _ = create_profile("private1", "Private", "One", display_points=False, points=30)
+        
+        expected_user_data = [(get_user_full_name(public2), public2.points), (get_user_full_name(public1), public1.points)]
+
+        response = self.client.get(reverse('leaderboard'))
+        self.assertQuerysetEqual(
+            response.context['users'],
+            expected_user_data
+        )
+
+    def test_several_users_overflow(self):
+        """Tests that the leaderboard still displays a set number of profiles when a lot exist and orders them by points descending."""
+        NUM_USERS_TO_SHOW = 10
+
+        public_profiles = []
+        for i in range(NUM_USERS_TO_SHOW + 3):
+            public_profiles.append(create_profile(f"public{i}", "Public", f"{i}", display_points=True, points=(i * 10)))
+        
+        # Add the profiles to the expected data in descending order
+        profiles_to_show = public_profiles[3:]
+        expected_user_data = []
+        for profile in profiles_to_show:
+            expected_user_data.insert(0, (get_user_full_name(profile), profile.points))
 
         response = self.client.get(reverse('leaderboard'))
         self.assertQuerysetEqual(
