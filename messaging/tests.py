@@ -39,16 +39,28 @@ def get_user_full_name(profile: Profile) -> str:
     :param profile - Profile Model
     :return the username as a str
     """
-    return User.objects.get(id=profile.user).get_full_name()
+    return User.objects.get(id=profile.user.id).get_full_name()
 
 class LeaderboardViewTests(TestCase):
+    def test_no_users(self):
+        """Tests that the leaderboard displays no profiles when none exist."""
+        response = self.client.get(reverse('leaderboard'))
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerysetEqual(response.context['users'], [])
+
+    def test_one_user_private(self):
+        """Tests that the leaderboard displays no profiles when one has private data."""
+        _ = create_profile("jsmith", "John", "Smith", display_points=False, points=10)
+        response = self.client.get(reverse('leaderboard'))
+        self.assertQuerysetEqual(response.context['users'], [])
+    
     def test_one_user_public(self):
         """Tests that the leaderboard displays the sole profile with public data."""
         profile = create_profile("jsmith", "John", "Smith", True, 10)
         user_full_name = get_user_full_name(profile)
         expected_user_data = [(user_full_name, profile.points)]
 
-        response = self.client.get(reverse('messaging:leaderboard'))
+        response = self.client.get(reverse('leaderboard'))
         self.assertQuerysetEqual(
             response.context['users'],
             expected_user_data
