@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.db import models
 
 class Profile(models.Model):
+    """Model controlling a user's profile data."""
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     bio = models.TextField(max_length=200, null=True, blank=True)
     #picture = models.ImageField()
@@ -17,10 +18,9 @@ class Profile(models.Model):
         return name
     
 class UserGroup(models.Model):
+    """A connection between users for a conversation."""
     name = models.TextField(max_length=400)
     members = models.ManyToManyField(User, related_name='members')
-    
-
 
 class Conversation(models.Model):
     """Model controlling the entire set of messages sent back-and-forth between users."""
@@ -32,15 +32,6 @@ class Conversation(models.Model):
     class Meta:
         # Show the most recently updated messages first
         ordering = ['-updated', '-created']
-
-    # def __str__(self):
-    #     # Create a comma-separated list of members in a conversation
-    #     name = ''
-    #     for i, user in self.members:
-    #         if i > 0:
-    #             name += ', '
-    #         name += user.name
-    #     return name
 
 class Message(models.Model):
     """Model controlling an individual message sent by a user."""

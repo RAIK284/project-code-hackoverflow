@@ -1,15 +1,14 @@
 from django.contrib import messages
-from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from matplotlib import use
-from .forms import ProfileCreateForm, MessageSend
-from django.db.models import Count, Q
-from django.core.exceptions import ObjectDoesNotExist
-import operator
+from django.contrib.auth.models import User
+from django.db.models import Q
 from django.shortcuts import render, redirect
-from .models import Profile, Conversation, Message, UserGroup
 from functools import reduce
+import operator
+
+from .forms import ProfileCreateForm, MessageSend
+from .models import Profile, Conversation, Message, UserGroup
 
 def login_page(request):
     """View for the site's login page."""
@@ -52,6 +51,7 @@ def register_user_page(request):
     if request.method == 'POST':
         form = ProfileCreateForm(request.POST)
 
+        # Save the data if the form is valid
         if form.is_valid():
             user, profile = form.save(commit=False)
             user.username = user.username.lower()
@@ -68,18 +68,24 @@ def register_user_page(request):
     return render(request, 'messaging/login_register.html', context)
 
 def inbox(request):
+    """View for the user's inbox."""
     convos = Conversation.objects.filter(userGroup__members__in=[request.user.id])
-    convoNames = []
+
+    convo_names = []
     for convo in convos:
-        allUsernames = convo.name.split('-')
-        nameString = ""
-        for username in allUsernames:
+        # Generate the names for each conversation
+        all_usernames = convo.name.split('-')
+        name_string = ""
+
+        for username in all_usernames:
             if username is not request.user.username:
-                nameString += User.objects.get(username=username).get_full_name() + ', '
-        nameString = nameString[:-2]
-        convoNames.append(nameString)
+                name_string += User.objects.get(username=username).get_full_name() + ', '
+
+        # Cut off the last ', '
+        name_string = name_string[:-2]
+        convo_names.append(name_string)
         
-    context = {'convos':convos, 'convoNames':convoNames}
+    context = {'convos': convos, 'convoNames': convo_names}
     return render(request, 'messaging/inbox.html', context)
 
 def send_message(request):
@@ -104,11 +110,12 @@ def profile(request, pk):
     """View for a user's own profile."""
     user = User.objects.get(id=pk)
     profile = user.profile
-    context = {'user':user, 'profile':profile}
+    context = {'user': user, 'profile': profile}
     return render(request, 'messaging/profile.html', context)
 
 def leaderboard(request):
     """View for the global leaderboard."""
+    # TODO: We need to fix this for whether data is set public
     NUM_USERS_TO_SHOW = 10
     user_points = Profile.objects.values('points', 'user', 'displayPoints').order_by('-points')[:NUM_USERS_TO_SHOW]
 
@@ -128,40 +135,43 @@ def leaderboard(request):
 
 @login_required(login_url='login')
 def create_convo(request):
+    """View to create a conversation for a user."""
+    def make_group_convo(group_name, send_to_list):
+        """Makes a group conversation."""
+        user_group = UserGroup.objects.create(name=group_name)
+        user_group.save()
 
-    def makeGroupConvo(groupName, sendToList):
-        userGroup = UserGroup.objects.create(name=groupName)
-        userGroup.save()
-        for username in sendToList:
-            userGroup.members.add(User.objects.get(username=username))
-        convo = Conversation.objects.create(name = groupName, userGroup=userGroup)
+        for username in send_to_list:
+            user_group.members.add(User.objects.get(username=username))
+
+        convo = Conversation.objects.create(name=group_name, user_group=user_group)
         convo.save()
-        convo.name = groupName
-        return userGroup, convo
         
-
-    """View to create a conversation."""
+        return user_group, convo
+        
     form = MessageSend()
-
     if request.method == 'POST':
-        sendTo = request.POST.get('send_to')
-        sendTo = sendTo.replace(" ", "")
-        sendToList = sendTo.split(",")
-        sendToList.append(request.user.username)
-        groupName = "-".join(sendToList)
+        send_to = request.POST.get('send_to')
+        send_to = send_to.replace(" ", "")
+        send_to_list = send_to.split(",")
+        send_to_list.append(request.user.username)
+        group_name = "-".join(send_to_list)
         body = request.POST.get('body')
 
+        # Create the user group and the conversation from it
         convo = None
-        userGroup = None
-        userGroupQSet = UserGroup.objects.filter(reduce(operator.and_, (Q(name__icontains=x) for x in sendToList)))
-        if not userGroupQSet.exists():
-            userGroup, convo = makeGroupConvo(groupName, sendToList)
+        user_group = None
+
+        # Query for if the user group exists
+        user_group_Qset = UserGroup.objects.filter(reduce(operator.and_, (Q(name__icontains=x) for x in send_to_list)))
+        if not user_group_Qset.exists():
+            user_group, convo = make_group_convo(group_name, send_to_list)
         else:
-            userGroup = UserGroup.objects.get(id=userGroupQSet[0].id)
-            if userGroup.members.all().count() > len(sendToList):
-                userGroup, convo = makeGroupConvo(groupName, sendToList)
+            user_group = UserGroup.objects.get(id=user_group_Qset[0].id)
+            if user_group.members.all().count() > len(send_to_list):
+                user_group, convo = make_group_convo(group_name, send_to_list)
             else:
-                convo = userGroup.conversation
+                convo = user_group.conversation
 
         Message.objects.create(
             sender=request.user,
@@ -172,7 +182,5 @@ def create_convo(request):
 
         return redirect('conversation', pk=convo.id)
 
-        
-    
     context = {'form': form}
     return render(request, 'messaging/new_convo.html', context)
