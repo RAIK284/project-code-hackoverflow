@@ -115,19 +115,18 @@ def profile(request, pk):
 
 def leaderboard(request):
     """View for the global leaderboard."""
-    # TODO: We need to fix this for whether data is set public
+    # Get only the top users that have their points public
     NUM_USERS_TO_SHOW = 10
-    user_points = Profile.objects.values('points', 'user', 'displayPoints').order_by('-points')[:NUM_USERS_TO_SHOW]
+    user_points = Profile.objects.filter(displayPoints=True).values('points', 'user').order_by('-points')[:NUM_USERS_TO_SHOW]
 
     # Prepare data for each user on the leaderboard
     user_names = []
     points = []
     for obj in user_points:
-        if obj['displayPoints'] == True:
-            user = obj['user']
-            point = obj['points']
-            points.append(point)
-            user_names.append(User.objects.get(id = user).get_full_name())
+        user = obj['user']
+        point = obj['points']
+        points.append(point)
+        user_names.append(User.objects.get(id=user).get_full_name())
 
     user_data = zip(user_names, points)
     context = {'users': user_data}

@@ -41,3 +41,16 @@ If you pull in main or switch to a new branch, chances are that there will be mi
         - Re-run for every conflicting app
     - `python manage.py migrate --fake`
 6. You should be good to run the server and go!
+## Testing
+### Writing Tests
+
+Recommend following: https://docs.djangoproject.com/en/4.0/intro/tutorial05/
+
+### Running Tests
+
+`python manage.py test <APP_NAME>`
+
+- Note: you might get this error: `Got an error creating the test database: permission denied to create database`
+    - Log into sql shell under your root (main) account.
+    - Add the createdb permission to our 'admin' user:
+        - `ALTER USER admin CREATEDB;`
