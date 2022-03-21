@@ -28,27 +28,64 @@ def get_user_full_name(profile: Profile) -> str:
     """
     return User.objects.get(id=profile.user.id).get_full_name()
 
-# View Tests
 class ConversationViewTests(TestCase):
-    pass
+    def test_convo_no_members(self):
+        """TODO Tests that a conversation with no members can't be created."""
+        pass
+
+    def test_convo_one_member(self):
+        """TODO Tests that a conversation with one member can't be created."""
+        pass
+
+    def test_conv_no_messages(self):
+        """TODO Tests that a conversation with no messages can't be created."""
+        pass
+
+    def test_convo_one_message(self):
+        """TODO Tests that a conversation with one message is shown."""
+        pass
+
+    def test_convo_more_messages(self):
+        """TODO Tests that a conversation with more messages are shown between two users."""
+        pass
+
+    def test_convo_more_users(self):
+        """TODO Tests that a conversation with more than two users renders messages properly."""
+        pass
 
 class InboxViewTests(TestCase):
-    pass
+    def test_inbox_no_conversations(self):
+        """Tests that the inbox shows no convos when none exist."""
+        response = self.client.get(reverse('inbox'))
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerysetEqual(response.context['convos'], [])
+        self.assertQuerysetEqual(response.context['convo_names'], [])
+
+    def test_inbox_one_conversation_two_users(self):
+        """TODO Tests that the inbox shows one conversation between two users."""
+        pass
+
+    def test_inbox_one_conversation_more_users(self):
+        """TODO Tests that the inbox shows one conversation between more users."""
+
+    def test_inbox_multiple_conversations(self):
+        """TODO Tests that the inbox shows multiple conversations in the correct order."""
+        pass
 
 class LeaderboardViewTests(TestCase):
-    def test_no_users(self):
+    def test_leaderboard_no_users(self):
         """Tests that the leaderboard displays no profiles when none exist."""
         response = self.client.get(reverse('leaderboard'))
         self.assertEqual(response.status_code, 200)
         self.assertQuerysetEqual(response.context['users'], [])
 
-    def test_one_user_private(self):
+    def test_leaderboard_one_user_private(self):
         """Tests that the leaderboard displays no profiles when one has private data."""
         _ = create_profile("jsmith", "John", "Smith", display_points=False, points=10)
         response = self.client.get(reverse('leaderboard'))
         self.assertQuerysetEqual(response.context['users'], [])
     
-    def test_one_user_public(self):
+    def test_leaderboard_one_user_public(self):
         """Tests that the leaderboard displays the sole profile with public data."""
         profile = create_profile("jsmith", "John", "Smith", True, 10)
         user_full_name = get_user_full_name(profile)
@@ -60,7 +97,7 @@ class LeaderboardViewTests(TestCase):
             expected_user_data
         )
 
-    def test_several_users_mix(self):
+    def test_leaderboard_several_users_mix(self):
         """Tests that the leaderboard only shows public profiles and orders them by points descending."""
         public1 = create_profile("public1", "Public", "One", display_points=True, points=10)
         public2 = create_profile("public2", "Public", "Two", display_points=True, points=20)
@@ -74,7 +111,7 @@ class LeaderboardViewTests(TestCase):
             expected_user_data
         )
 
-    def test_several_users_overflow(self):
+    def test_leaderboard_several_users_overflow(self):
         """Tests that the leaderboard still displays a set number of profiles when a lot exist and orders them by points descending."""
         NUM_USERS_TO_SHOW = 10
 
