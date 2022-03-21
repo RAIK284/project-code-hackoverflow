@@ -1,4 +1,14 @@
 # HackOverflow - Pawsitivity
+## Running the Code
+1. Open up your terminal in VS Code (Terminal -> New Terminal)
+- `python manage.py makemigrations`
+- `python manage.py migrate`
+    - If you're working on the front-end, these should likely not do anythin
+- `python manage.py runserver`
+2. Now you should be able to open a browser window and go to `localhost:8000`
+3. As you update your code, the browser will automatically update (unless it has a major issue)
+4. Make sure you stop the server when you're done! The easy way is going back to the terminal and pressing either CTRL-C or CMD-C
+
 ## Configuring Dev. Environment
 
 Since the project uses postgreSQL, there is a bit more setup required on the dev side to properly configure the environment.
@@ -41,6 +51,13 @@ If you pull in main or switch to a new branch, chances are that there will be mi
         - Re-run for every conflicting app
     - `python manage.py migrate --fake`
 6. You should be good to run the server and go!
+
+**Note:** If there are still issues after trying this, do this instead:
+1. Log into shell with your main account (postgres is the default name)
+2. Delete our database
+    - `DROP DATABASE hoverflowdb;`
+3. Restart at part 2 of the Setup instructions
+
 ## Testing
 ### Writing Tests
 
