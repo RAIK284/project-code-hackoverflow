@@ -2,9 +2,12 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Profile
+from .models import Conversation, Profile
 
 # Helper Functions
+def create_convo() -> Conversation:
+    pass
+
 def create_profile(username: str, first_name: str, last_name: str, display_points: bool, points: int) -> Profile:
     """
     Helper function that creates a profile for a user.
@@ -28,6 +31,15 @@ def get_user_full_name(profile: Profile) -> str:
     """
     return User.objects.get(id=profile.user.id).get_full_name()
 
+# Form Tests
+class ProfileCreateFormTests(TestCase):
+    # TODO
+    pass
+
+class MessageSendTests(TestCase):
+    pass
+
+# View Tests
 class ConversationViewTests(TestCase):
     def test_convo_no_members(self):
         """TODO Tests that a conversation with no members can't be created."""
@@ -57,9 +69,12 @@ class InboxViewTests(TestCase):
     def test_inbox_no_conversations(self):
         """Tests that the inbox shows no convos when none exist."""
         response = self.client.get(reverse('inbox'))
-        self.assertEqual(response.status_code, 200)
-        self.assertQuerysetEqual(response.context['convos'], [])
-        self.assertQuerysetEqual(response.context['convo_names'], [])
+        self.assertQuerysetEqual(response.context['convos'], [], msg="Conversations were shown in the inbox when none were expected.")
+
+    def test_inbox_no_convo_names(self):
+        """Tests that the inbox shows no convo names when none exist."""
+        response = self.client.get(reverse('inbox'))
+        self.assertQuerysetEqual(response.context['convo_names'], [], msg="Conversation names were shown in the inbox when none were expected.")
 
     def test_inbox_one_conversation_two_users(self):
         """TODO Tests that the inbox shows one conversation between two users."""
@@ -76,14 +91,14 @@ class LeaderboardViewTests(TestCase):
     def test_leaderboard_no_users(self):
         """Tests that the leaderboard displays no profiles when none exist."""
         response = self.client.get(reverse('leaderboard'))
-        self.assertEqual(response.status_code, 200)
-        self.assertQuerysetEqual(response.context['users'], [])
+        self.assertQuerysetEqual(response.context['users'], [], msg="Leaderboard displays profiles when none were expected.")
 
     def test_leaderboard_one_user_private(self):
         """Tests that the leaderboard displays no profiles when one has private data."""
         _ = create_profile("jsmith", "John", "Smith", display_points=False, points=10)
+
         response = self.client.get(reverse('leaderboard'))
-        self.assertQuerysetEqual(response.context['users'], [])
+        self.assertQuerysetEqual(response.context['users'], [], msg=f"Leaderboard displayed {response.context['users']}, when no public users were expected.")
     
     def test_leaderboard_one_user_public(self):
         """Tests that the leaderboard displays the sole profile with public data."""
@@ -94,7 +109,8 @@ class LeaderboardViewTests(TestCase):
         response = self.client.get(reverse('leaderboard'))
         self.assertQuerysetEqual(
             response.context['users'],
-            expected_user_data
+            expected_user_data,
+            msg=f"Leaderboard displayed {response.context['users']}, when only one public user was expected: {expected_user_data}."
         )
 
     def test_leaderboard_several_users_mix(self):
@@ -108,7 +124,8 @@ class LeaderboardViewTests(TestCase):
         response = self.client.get(reverse('leaderboard'))
         self.assertQuerysetEqual(
             response.context['users'],
-            expected_user_data
+            expected_user_data,
+            msg=f"Leaderboard displayed {response.context['users']}, when only the public profiles {expected_user_data} were expected."
         )
 
     def test_leaderboard_several_users_overflow(self):
@@ -128,5 +145,6 @@ class LeaderboardViewTests(TestCase):
         response = self.client.get(reverse('leaderboard'))
         self.assertQuerysetEqual(
             response.context['users'],
-            expected_user_data
+            expected_user_data,
+            msg=f"Leaderboard displayed {len(response.context['users'])} when only {NUM_USERS_TO_SHOW} were expected."
         )
