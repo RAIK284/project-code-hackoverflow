@@ -1,0 +1,14 @@
+{% extends 'main.html' %} {% block content %}
+
+<h1>Leaderboard</h1>
+<hr />
+
+{% for user, points in users %}
+    <div>
+        <a>{{ user }}</a>
+        <a>{{ points }}</a>
+        <hr />
+    </div>
+{% endfor %}
+
+{% endblock %}

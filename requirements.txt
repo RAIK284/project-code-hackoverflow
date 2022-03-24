@@ -1,4 +1,2 @@
 django==4.0.2
-django-phonenumber-field[phonenumbers]==6.1.0
-Pillow==8.3.1
-psycopg2==2.9.3
+psycpiopg2==2.9.3
