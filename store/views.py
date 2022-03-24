@@ -13,3 +13,4 @@ def buy(request, pk):
 
     context = {'product': product}
     return render(request, 'store/buy.html', context)
+
