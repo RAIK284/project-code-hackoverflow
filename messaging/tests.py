@@ -2,13 +2,28 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Conversation, Profile
+from messaging.views import profile
+
+from .forms import ProfileCreateForm
+from .models import Conversation, Message, Profile, UserGroup
 
 # Helper Functions
-def create_convo() -> Conversation:
-    pass
+def create_convo(convo_name: str, profiles: list[Profile]) -> Conversation:
+    """
+    Helper function that creates a conversation between users.
 
-def create_profile(username: str, first_name: str, last_name: str, display_points: bool, points: int) -> Profile:
+    :param convo_name - the name to give the conversation
+    :param profiles - a list of profiles to extract user data from
+    :return a new Conversation object
+    """
+    user_group = UserGroup.objects.create(name=convo_name)
+    for profile in profiles:
+        user = User.objects.get(id=profile.user.id)
+        user_group.members.add(user)
+
+    return Conversation.objects.create(name=convo_name, userGroup=user_group)
+
+def create_profile(username: str, first_name: str, last_name: str, display_points: bool, points: int, display_purchases: bool=False, password: str='YuR46aeZR', email: str='user@email.com') -> Profile:
     """
     Helper function that creates a profile for a user.
 
@@ -17,10 +32,12 @@ def create_profile(username: str, first_name: str, last_name: str, display_point
     :param last_name - user's last name
     :param display_points - whether or not the profile's points are public
     :param points - the number of points for the user
+    :param display_purchases - (optional) whether or not the profile's purchases are public
+    :param password - (optional) the user's password
     :return the created Profile
     """
-    user = User.objects.create_user(username=username, first_name=first_name, last_name=last_name, password='12345')
-    return Profile.objects.create(user=user, displayPoints=display_points, points=points)
+    user = User.objects.create_user(username=username, password=password, email=email, first_name=first_name, last_name=last_name)
+    return Profile.objects.create(user=user, displayPoints=display_points, points=points, displayPurchases=display_purchases) 
 
 def get_user_full_name(profile: Profile) -> str:
     """
@@ -33,59 +50,102 @@ def get_user_full_name(profile: Profile) -> str:
 
 # Form Tests
 class ProfileCreateFormTests(TestCase):
-    # TODO
-    pass
+    def test_profile_create_form_all_valid_fields(self):
+        """Tests that the profile create form can be filled properly."""
+        # Note: username, password1, and password2 all extra required for User creation
+        form_data = {
+            'username': 'lknope',
+            'password1': 'YuR46aeZR',
+            'password2': 'YuR46aeZR',
+            'first_name': 'Leslie',
+            'last_name': 'Knope',
+            'email': 'lknope@pawnee.com',
+            'bio': 'Head of Pawnee Parks & Rec!',
+            'make_my_points_public': True,
+            'make_my_purchases_public': True
+        }
+
+        form = ProfileCreateForm(data=form_data)
+        self.assertTrue(form.is_valid(), msg="Expected the form to be valid if all the fields are valid, but failed.")
+
+    def test_profile_create_form_valid_save_user(self):
+        """Tests that the profile create form can be filled properly and save a new user correctly."""
+        # Note: username, password1, and password2 all extra required for User creation
+        form_data = {
+            'username': 'lknope',
+            'password1': 'YuR46aeZR',
+            'password2': 'YuR46aeZR',
+            'first_name': 'Leslie',
+            'last_name': 'Knope',
+            'email': 'lknope@pawnee.com',
+            'bio': 'Head of Pawnee Parks & Rec!',
+            'make_my_points_public': True,
+            'make_my_purchases_public': True
+        }
+
+        form = ProfileCreateForm(data=form_data)
+        actual_user, _ = form.save(commit=False)
+        user_correct = \
+            actual_user.username == form_data['username'] and \
+            actual_user.first_name == form_data['first_name'] and \
+            actual_user.last_name == form_data['last_name'] and \
+            actual_user.email == form_data['email']
+
+        self.assertTrue(user_correct, msg="Expected the right user to be made if all the fields are valid, but failed.")
+
+    def test_profile_create_form_valid_save_profile(self):
+        """Tests that the profile create form can be filled properly and save a new profile correctly."""
+        # Note: username, password1, and password2 all extra required for User creation
+        form_data = {
+            'username': 'lknope',
+            'password1': 'YuR46aeZR',
+            'password2': 'YuR46aeZR',
+            'first_name': 'Leslie',
+            'last_name': 'Knope',
+            'email': 'lknope@pawnee.com',
+            'bio': 'Head of Pawnee Parks & Rec!',
+            'make_my_points_public': True,
+            'make_my_purchases_public': True
+        }
+
+        form = ProfileCreateForm(data=form_data)
+        _, actual_profile = form.save(commit=False)
+        profile_correct = \
+            actual_profile.bio == form_data['bio'] and \
+            actual_profile.displayPoints == form_data['make_my_points_public'] and \
+            actual_profile.displayPurchases == form_data['make_my_purchases_public']
+
+        self.assertTrue(profile_correct, msg="Expected the right user to be made if all the fields are valid, but failed.")
+
+    def test_profile_create_form_invalid_empty_fields(self):
+        """Tests that the form is invalid with empty fields."""
+        form = ProfileCreateForm(data={})
+        self.assertFalse(form.is_valid(), msg="Expected the form to be invalid with no data, but it was marked valid.")
+
+    def test_profile_create_form_invalid_missing_fields(self):
+        """Tests that the form is invalid with missing fields."""
+        form_data = {
+            'username': 'lknope',
+            'password1': 'YuR46aeZR',
+            'password2': 'YuR46aeZR',
+            'first_name': 'Leslie',
+            'last_name': 'Knope',
+            'email': 'lknope@pawnee.com'
+        }
+
+        form = ProfileCreateForm(data=form_data)
+        self.assertFalse(form.is_valid(), msg="Expected the form to be invalid with missing data, but it was marked valid.")
 
 class MessageSendTests(TestCase):
+    # TODO: need to write
     pass
 
 # View Tests
 class ConversationViewTests(TestCase):
-    def test_convo_no_members(self):
-        """TODO Tests that a conversation with no members can't be created."""
-        pass
-
-    def test_convo_one_member(self):
-        """TODO Tests that a conversation with one member can't be created."""
-        pass
-
-    def test_conv_no_messages(self):
-        """TODO Tests that a conversation with no messages can't be created."""
-        pass
-
-    def test_convo_one_message(self):
-        """TODO Tests that a conversation with one message is shown."""
-        pass
-
-    def test_convo_more_messages(self):
-        """TODO Tests that a conversation with more messages are shown between two users."""
-        pass
-
-    def test_convo_more_users(self):
-        """TODO Tests that a conversation with more than two users renders messages properly."""
-        pass
+    pass # TODO: Need to figure out how to log in
 
 class InboxViewTests(TestCase):
-    def test_inbox_no_conversations(self):
-        """Tests that the inbox shows no convos when none exist."""
-        response = self.client.get(reverse('inbox'))
-        self.assertQuerysetEqual(response.context['convos'], [], msg="Conversations were shown in the inbox when none were expected.")
-
-    def test_inbox_no_convo_names(self):
-        """Tests that the inbox shows no convo names when none exist."""
-        response = self.client.get(reverse('inbox'))
-        self.assertQuerysetEqual(response.context['convo_names'], [], msg="Conversation names were shown in the inbox when none were expected.")
-
-    def test_inbox_one_conversation_two_users(self):
-        """TODO Tests that the inbox shows one conversation between two users."""
-        pass
-
-    def test_inbox_one_conversation_more_users(self):
-        """TODO Tests that the inbox shows one conversation between more users."""
-
-    def test_inbox_multiple_conversations(self):
-        """TODO Tests that the inbox shows multiple conversations in the correct order."""
-        pass
+    pass # TODO: Need to figure out how to log in
 
 class LeaderboardViewTests(TestCase):
     def test_leaderboard_no_users(self):

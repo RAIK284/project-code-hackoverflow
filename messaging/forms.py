@@ -12,7 +12,7 @@ class ProfileCreateForm(UserCreationForm):
     email = forms.EmailField(max_length=75, required=True)
     bio = forms.CharField(max_length=200, widget=forms.Textarea, required=True)
     make_my_points_public = forms.BooleanField()
-    make_my_purchaes_public = forms.BooleanField()
+    make_my_purchases_public = forms.BooleanField()
 
     class Meta:
         model = User
@@ -27,7 +27,7 @@ class ProfileCreateForm(UserCreationForm):
         user.email = self.cleaned_data['email']
 
         # Create "Profile" data
-        profile = Profile(user=user, bio=self.cleaned_data['bio'], displayPoints=self.cleaned_data['make_my_points_public'], displayPurchases=self.cleaned_data['make_my_purchaes_public'])
+        profile = Profile(user=user, bio=self.cleaned_data['bio'], displayPoints=self.cleaned_data['make_my_points_public'], displayPurchases=self.cleaned_data['make_my_purchases_public'])
         
         if commit:
             user.save()

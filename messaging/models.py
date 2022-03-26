@@ -33,6 +33,9 @@ class Conversation(models.Model):
         # Show the most recently updated messages first
         ordering = ['-updated', '-created']
 
+    def __str__(self):
+        return self.name[:50]
+
 class Message(models.Model):
     """Model controlling an individual message sent by a user."""
     sender = models.ForeignKey(User, on_delete=models.CASCADE)
