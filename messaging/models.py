@@ -30,7 +30,7 @@ class Conversation(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        # Show the most recently updated messages first
+        # Show the most recently updated conversations first
         ordering = ['-updated', '-created']
 
     def __str__(self):
@@ -46,7 +46,11 @@ class Message(models.Model):
     read = models.BooleanField(default=False)
 
     # Track the number of token points in the message, if applicable
-    points = models.IntegerField()
+    points = models.IntegerField(default=0)
+
+    class Meta:
+        # Show the most recently updated messages first
+        ordering = ['updated', 'created']
 
     def __str__(self):
         return self.body[:50]

@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
-from messaging.views import profile
+from messaging.views import conversation, profile
 
 from .forms import ProfileCreateForm
 from .models import Conversation, Message, Profile, UserGroup
@@ -22,6 +22,17 @@ def create_convo(convo_name: str, profiles: list[Profile]) -> Conversation:
         user_group.members.add(user)
 
     return Conversation.objects.create(name=convo_name, userGroup=user_group)
+
+def create_message(sender: Profile, convo: Conversation, body: str) -> Message:
+    """
+    Helper function to make a message for a conversation.
+
+    :param sender - the profile that sent the message
+    :param convo - the conversation to attach the message to
+    :param body - the actual message contents
+    :return the message object
+    """
+    return Message.objects.create(sender=sender.user, conversation=convo, body=body)
 
 def create_profile(username: str, first_name: str, last_name: str, display_points: bool, points: int, display_purchases: bool=False, password: str='YuR46aeZR', email: str='user@email.com') -> Profile:
     """
@@ -137,15 +148,166 @@ class ProfileCreateFormTests(TestCase):
         self.assertFalse(form.is_valid(), msg="Expected the form to be invalid with missing data, but it was marked valid.")
 
 class MessageSendTests(TestCase):
-    # TODO: need to write
+    # TODO: need to write after implementation
     pass
 
 # View Tests
 class ConversationViewTests(TestCase):
-    pass # TODO: Need to figure out how to log in
+    def test_convo_one_message_convo_returned(self):
+        """Tests that a conversation is returned when it has one message."""
+        profile1 = create_profile("mscott", "Michael", "Scott", True, 0)
+        profile2 = create_profile("dschrute", "Dwight", "Schrute", False, 0)
+        convo = create_convo("mscott-dschrute", [profile1, profile2])
+        _ = create_message(profile1, convo, "Hi Dwight!")
+
+        self.client.force_login(profile1.user)
+
+        response = self.client.get(reverse('conversation', args=[convo.id]))
+        self.assertEquals(
+            response.context['convo'],
+            convo,
+            msg=f"Expected a conversation with name {convo.name} to be returned when {profile1.user.username} is logged in, but failed."
+        )
+
+    def test_convo_one_message_msg_returned(self):
+        """Tests that the right message is returned from a conversation with one message."""
+        profile1 = create_profile("mscott", "Michael", "Scott", True, 0)
+        profile2 = create_profile("dschrute", "Dwight", "Schrute", False, 0)
+        convo = create_convo("mscott-dschrute", [profile1, profile2])
+        expected_msg = create_message(profile1, convo, "Hi Dwight!")
+
+        self.client.force_login(profile1.user)
+
+        response = self.client.get(reverse('conversation', args=[convo.id]))
+        self.assertQuerysetEqual(
+            response.context['messages'],
+            [expected_msg],
+            msg=f"Expected the message in a conversation with name {convo.name} to be returned when {profile1.user.username} is logged in, but failed."
+        )
+
+    def test_convo_one_message_name_returned(self):
+        """Tests that the right first name is returned from a conversation with one message."""
+        profile1 = create_profile("mscott", "Michael", "Scott", True, 0)
+        profile2 = create_profile("dschrute", "Dwight", "Schrute", False, 0)
+        convo = create_convo("mscott-dschrute", [profile1, profile2])
+        _ = create_message(profile1, convo, "Hi Dwight!")
+
+        self.client.force_login(profile1.user)
+
+        response = self.client.get(reverse('conversation', args=[convo.id]))
+        self.assertEquals(
+            response.context['first_name'],
+            profile1.user.first_name,
+            msg=f"Expected the sender's first name in a conversation with name {convo.name} to be returned when {profile1.user.username} is logged in, but failed."
+        )
+
+    def test_convo_one_message_members_returned(self):
+        """Tests that the members are returned from a conversation with one message."""
+        profile1 = create_profile("mscott", "Michael", "Scott", True, 0)
+        profile2 = create_profile("dschrute", "Dwight", "Schrute", False, 0)
+        convo = create_convo("mscott-dschrute", [profile1, profile2])
+        _ = create_message(profile1, convo, "Hi Dwight!")
+
+        self.client.force_login(profile1.user)
+
+        response = self.client.get(reverse('conversation', args=[convo.id]))
+        self.assertQuerysetEqual(
+            response.context['members'],
+            [profile2.user.get_full_name(), profile1.user.get_full_name()],
+            msg=f"Expected the members in a conversation with name {convo.name} to be returned when {profile1.user.username} is logged in, but failed."
+        )
+
+    def test_convo_several_messages_msgs_returned(self):
+        """Tests that the right messages are returned from a conversation with multiple messages."""
+        profile1 = create_profile("mscott", "Michael", "Scott", True, 0)
+        profile2 = create_profile("dschrute", "Dwight", "Schrute", False, 0)
+        convo = create_convo("mscott-dschrute", [profile1, profile2])
+        expected_msg1 = create_message(profile1, convo, "Hi Dwight!")
+        expected_msg2 = create_message(profile2, convo, "Hello Michael.")
+
+        self.client.force_login(profile1.user)
+
+        response = self.client.get(reverse('conversation', args=[convo.id]))
+        self.assertQuerysetEqual(
+            response.context['messages'],
+            [expected_msg1, expected_msg2],
+            msg=f"Expected the messages in a conversation with name {convo.name} to be returned when {profile1.user.username} is logged in, but failed."
+        )
 
 class InboxViewTests(TestCase):
-    pass # TODO: Need to figure out how to log in
+    def test_inbox_no_display_no_convos(self):
+        """Tests that no conversations are rendered when none exist for a user."""
+        profile1 = create_profile("mscott", "Michael", "Scott", True, 0)
+
+        response = self.client.get(reverse('inbox'))
+        self.assertQuerysetEqual(
+            response.context['convos'],
+            [],
+            msg=f"Expected no conversation to be returned when logged in but none exist, but failed."
+        )
+
+    def test_inbox_no_display_not_logged_in(self):
+        """Tests that no conversations are rendered when a user isn't logged in."""
+        profile1 = create_profile("mscott", "Michael", "Scott", True, 0)
+        profile2 = create_profile("dschrute", "Dwight", "Schrute", False, 0)
+        _ = create_convo("mscott-dschrute", [profile1, profile2])
+
+        response = self.client.get(reverse('inbox'))
+        self.assertQuerysetEqual(
+            response.context['convos'],
+            [],
+            msg=f"Expected no conversation to be returned when not logged in, but failed."
+        )
+
+    def test_inbox_one_convo_two_users(self):
+        """Tests that a conversation between two users is shown when one user is logged in."""
+        profile1 = create_profile("mscott", "Michael", "Scott", True, 0)
+        profile2 = create_profile("dschrute", "Dwight", "Schrute", False, 0)
+        convo = create_convo("mscott-dschrute", [profile1, profile2])
+
+        self.client.force_login(profile1.user)
+
+        response = self.client.get(reverse('inbox'))
+        self.assertQuerysetEqual(
+            response.context['convos'],
+            [convo],
+            msg=f"Expected a conversation with name {convo.name} to be returned when {profile1.user.username} is logged in, but failed."
+        )
+
+    def test_inbox_one_convo_two_users(self):
+        """Tests that a conversation between two users is shown when the other user is logged in."""
+        profile1 = create_profile("mscott", "Michael", "Scott", True, 0)
+        profile2 = create_profile("dschrute", "Dwight", "Schrute", False, 0)
+        convo = create_convo("mscott-dschrute", [profile1, profile2])
+
+        self.client.force_login(profile2.user)
+
+        response = self.client.get(reverse('inbox'))
+        self.assertQuerysetEqual(
+            response.context['convos'],
+            [convo],
+            msg=f"Expected a conversation with name {convo.name} to be returned when {profile2.user.username} is logged in, but failed."
+        )
+
+    def test_inbox_multiple_convos(self):
+        """Tests that three conversations are shown in order of most recent to least recent when the user is logged in."""
+        profile1 = create_profile("mscott", "Michael", "Scott", True, 0)
+        profile2 = create_profile("dschrute", "Dwight", "Schrute", False, 0)
+        profile3 = create_profile("jhalpert", "Jim", "Halpert", True, 100)
+        profile4 = create_profile("pbeasly", "Pam", "Beasly", True, 200)
+
+        convo1 = create_convo("mscott-dschrute", [profile1, profile2])
+        convo2 = create_convo("mscott-jhalpert", [profile1, profile3])
+        convo3 = create_convo("mscott-pbeasly", [profile1, profile4])
+
+        self.client.force_login(profile1.user)
+
+        response = self.client.get(reverse('inbox'))
+        self.assertQuerysetEqual(
+            response.context['convos'],
+            [convo3, convo2, convo1],
+            msg=f"Expected three conversations to be returned when {profile1.user.username} is logged in, but failed."
+        )
 
 class LeaderboardViewTests(TestCase):
     def test_leaderboard_no_users(self):

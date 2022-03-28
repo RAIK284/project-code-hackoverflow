@@ -71,6 +71,7 @@ def inbox(request):
     """View for the user's inbox."""
     convos = Conversation.objects.filter(userGroup__members__in=[request.user.id])
 
+    """
     convo_names = []
     for convo in convos:
         # Generate the names for each conversation
@@ -84,8 +85,9 @@ def inbox(request):
         # Cut off the last ', '
         name_string = name_string[:-2]
         convo_names.append(name_string)
+    """
         
-    context = {'convos': convos, 'convoNames': convo_names}
+    context = {'convos': convos}
     return render(request, 'messaging/inbox.html', context)
 
 def send_message(request):
