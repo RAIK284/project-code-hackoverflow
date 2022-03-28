@@ -1,62 +1,27 @@
 {% extends 'main.html' %} {% block content %}
 
-<style>
-	.inbox-container a {
-		color: #f2f2f2;
-		border-radius: 10px;
-		text-align: left;
-		padding: 14px 16px;
-		text-decoration: none;
-		font-size: 17px;
-	}
-
-	.inbox-container a:hover {
-		background-color: #ddd;
-		border-radius: 10px;
-		padding: 14px 16px;
-		color: black;
-	}
-
-	.inbox-container p {
-		padding: 8px;
-		margin: 25px;
-
-		/* other styling */
-		background-color: #04aa6d;
-		border-radius: 10px;
-		color: white;
-		text-decoration: none;
-		font-family: Avenir;
-	}
-
-	.inbox-container g {
-		color: #f2f2f2;
-		text-align: left;
-		padding: 14px 16px;
-		text-decoration: none;
-		font-size: 17px;
-	}
-
-	.inbox-container g:hover {
-		background-color: #04aa6d;
-		border-radius: 10px;
-		color: black;
-	}
-</style>
-
 <div class="inbox-container">
 	<h1>Inbox</h1>
-	<hr />
 	<div>
-		{% for convo in convos %}
-		<p>
-			<a href="{% url 'conversation' convo.id %}">
-				{{convo.name}} &emsp;
-			</a>
-		</p>
-		<hr />
-		{% endfor %}
-		<p><a href="{% url 'createConvo' %}">New Message</a></p>
+		<ul class="list-group">
+			{% for convo in convos %}
+			<li class="list-group-item">
+				<a
+					class="btn btn-primary"
+					href="{% url 'conversation' convo.id %}"
+					role="button"
+				>
+					{{convo.name}}
+				</a>
+			</li>
+			<hr />
+			{% endfor %}
+			<p>
+				<a class="btn btn-success" href="{% url 'createConvo' %}" role="button">
+					New Message
+				</a>
+			</p>
+		</ul>
 	</div>
 </div>
 
