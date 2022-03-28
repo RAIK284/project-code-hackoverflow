@@ -103,6 +103,15 @@ def conversation(request, pk):
     for member in convo.userGroup.members.all():
         members.append(member.get_full_name())
 
+    if request.method == 'POST':
+        message = Message.objects.create(
+            sender=request.user,
+            conversation=convo,
+            body=request.POST.get('body'),
+            points = 0,
+        )
+        return redirect('conversation', pk=convo.id)
+
     first_name = request.user.first_name
     context = {'convo': convo, 'messages': messages, 'first_name': first_name, 'members': members}
     return render(request, 'messaging/conversation.html', context)
