@@ -3,16 +3,17 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.forms import ModelForm
 
-from .models import Profile, Message
+from .models import get_image_path, Message, Profile
 
 class ProfileCreateForm(UserCreationForm):
     """Form to allow a user to make a profile."""
     first_name = forms.CharField(max_length=30, required=True)
     last_name = forms.CharField(max_length=30, required=True)
     email = forms.EmailField(max_length=75, required=True)
-    bio = forms.CharField(max_length=200, widget=forms.Textarea, required=True)
-    make_my_points_public = forms.BooleanField()
-    make_my_purchases_public = forms.BooleanField()
+    bio = forms.CharField(max_length=200, widget=forms.Textarea, required=False)
+    image = forms.ImageField(required=False)
+    make_my_points_public = forms.BooleanField(required=False)
+    make_my_purchases_public = forms.BooleanField(required=False)
 
     class Meta:
         model = User
@@ -27,7 +28,7 @@ class ProfileCreateForm(UserCreationForm):
         user.email = self.cleaned_data['email']
 
         # Create "Profile" data
-        profile = Profile(user=user, bio=self.cleaned_data['bio'], displayPoints=self.cleaned_data['make_my_points_public'], displayPurchases=self.cleaned_data['make_my_purchases_public'])
+        profile = Profile(user=user, bio=self.cleaned_data['bio'], image=self.cleaned_data['image'], displayPoints=self.cleaned_data['make_my_points_public'], displayPurchases=self.cleaned_data['make_my_purchases_public'])
         
         if commit:
             user.save()

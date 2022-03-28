@@ -49,7 +49,7 @@ def register_user_page(request):
     form = ProfileCreateForm()
 
     if request.method == 'POST':
-        form = ProfileCreateForm(request.POST)
+        form = ProfileCreateForm(request.POST, request.FILES or None)
 
         # Save the data if the form is valid
         if form.is_valid():
@@ -70,23 +70,7 @@ def register_user_page(request):
 def inbox(request):
     """View for the user's inbox."""
     convos = Conversation.objects.filter(userGroup__members__in=[request.user.id])
-
-    """
-    convo_names = []
-    for convo in convos:
-        # Generate the names for each conversation
-        all_usernames = convo.name.split('-')
-        name_string = ""
-
-        for username in all_usernames:
-            if username is not request.user.username:
-                name_string += User.objects.get(username=username).get_full_name() + ', '
-
-        # Cut off the last ', '
-        name_string = name_string[:-2]
-        convo_names.append(name_string)
-    """
-        
+    
     context = {'convos': convos}
     return render(request, 'messaging/inbox.html', context)
 

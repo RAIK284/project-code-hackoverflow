@@ -34,29 +34,19 @@ Since the project uses postgreSQL, there is a bit more setup required on the dev
 4. Run `python manage.py migrate` from the shell and you should be good to go!
 ## Editing SQL Database to match new migrations
 
-If you pull in main or switch to a new branch, chances are that there will be migrations to make that will conflict with your local database's structure. Here's how to fix that.
-1. Log into shell
-    - Look for app "sql" and choose "SQL Shell (psql)"
-    - The square brackets are the defaults, so hit enter to apply the defaults where applicable. Then use username 'admin' and the password found in ![settings.py](./hackoverflow/settings.py) under `DATABASES['DEFAULT']`
-2. Connect to our database by running `\c hoverflowdb`
-3. Delete the migrations in the database for the app(s) conflicting
-    - `DELETE from django_migrations WHERE app='<APPNAME>';`
-        - Replace <APPNAME> with the culprit's name
-        - Re-run command for every conflicting app
-4. Back in Python, delete the migrations folder(s)
-5. In the terminal, run:
-    - `python manage.py migrate --run-syncdb`
-    - `python manage.py makemigrations <APPNAME>`
-        - Again, replace <APPNAME> with the culprit's name
-        - Re-run for every conflicting app
-    - `python manage.py migrate --fake`
-6. You should be good to run the server and go!
-
-**Note:** If there are still issues after trying this, do this instead:
-1. Log into shell with your main account (postgres is the default name)
+If you pull in main or switch to a new branch, chances are that there will be migrations to make that will conflict with your local database's structure. The easiest way to fix that is just deleting your database and remaking it from scratch.
+1. Log into shell with your main account (postgres is the default username)
 2. Delete our database
     - `DROP DATABASE hoverflowdb;`
-3. Restart at part 2 of the Setup instructions
+3. Recreate the database
+    - `CREATE DATABASE hoverflowdb;`
+    - `GRANT ALL PRIVILEGES ON DATABASE hoverflowdb TO admin;`
+    - Then you're done, so enter `\q` to exit the shell
+4. Delete the migrations folder in all of the apps.
+5. Delete the media folder, if it exists.
+6. Run `python manage.py makemigrations <APP_NAME>` for every app.
+7. Run `python manage.py migrate`.
+8. Run `python manage.py runserver` and you're good to go!
 
 ## Testing
 ### Writing Tests

@@ -1,11 +1,20 @@
 from django.contrib.auth.models import User
 from django.db import models
+import os
+
+def get_image_path(profile, filename):
+    """
+    Gets the system path for an image to display.
+    
+    Taken from: https://stackoverflow.com/a/8192232/5696057
+    """
+    return os.path.join('profile_images', str(profile.user.id), filename)
 
 class Profile(models.Model):
     """Model controlling a user's profile data."""
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     bio = models.TextField(max_length=200, null=True, blank=True)
-    #picture = models.ImageField()
+    image = models.ImageField(upload_to=get_image_path, null=True)
     wallet = models.IntegerField(default=0)
     displayPoints = models.BooleanField(default=False)
     points = models.IntegerField(default=0)
@@ -49,7 +58,7 @@ class Message(models.Model):
     points = models.IntegerField(default=0)
 
     class Meta:
-        # Show the most recently updated messages first
+        # Show the most recently updated messages last
         ordering = ['updated', 'created']
 
     def __str__(self):
