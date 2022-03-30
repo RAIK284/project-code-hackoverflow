@@ -4,14 +4,19 @@
 	<h1>Inbox</h1>
 	<div>
 		<ul class="list-group">
-			{% for convo in convos %}
+			{% for convo, name, first in names %}
 			<li class="list-group-item">
 				<a
-					class="btn btn-primary"
+					class="btn btn-primary text-left"
 					href="{% url 'conversation' convo.id %}"
 					role="button"
 				>
-					{{ convo.name }}
+					{{ name }}
+					<br />
+					&emsp;{%if first.sender.get_full_name == user_name %}You:{% else %}
+					{{first.sender.first_name}}:
+					<br />
+					{% endif %} {{first}}
 				</a>
 			</li>
 			<hr />

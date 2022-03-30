@@ -23,21 +23,37 @@
 				<li class="nav-item">
 					<a class="nav-link" href="{% url 'leaderboard' %}">Leaderboard</a>
 				</li>
-				<div class="justify-content-end" id="navbarSupportedContent">
+
+				<li class="nav-item ml-auto">
 					{% if request.user.is_authenticated %}
-					<li class="nav-item">
-						<a class="nav-link justify-content-end" href="{% url 'logout' %}">
-							Logout
+					<li>
+						<a href="/login" class="{% url 'profile' user.id %}">
+							{{ request.user }}
 						</a>
+					</li>
+					<li>
+						<div class="btn-nav">
+							<a
+								class="btn btn-primary btn-small navbar-btn"
+								href="{% url 'logout' %}"
+							>
+								Logout
+							</a>
+						</div>
 					</li>
 					{% else %}
-					<li class="nav-item">
-						<a class="nav-link justify-content-end" href="{% url 'login' %}">
-							Login
-						</a>
+					<li>
+						<div class="btn-nav">
+							<a
+								class="btn btn-primary btn-small navbar-btn"
+								href="{% url 'login' %}"
+							>
+								Login
+							</a>
+						</div>
 					</li>
 					{% endif %}
-				</div>
+				</li>
 			</ul>
 		</div>
 	</div>
@@ -57,7 +73,9 @@
 </script>
 
 {% if request.user.is_authenticated %}
-<div>Hello {{ request.user }}</div>
+<a class="nav-link text-left" href="{% url 'profile' user.id%}">
+	{{ request.user }}
+</a>
 <a href="{% url 'logout' %}">Logout</a>
 {% else %}
 <a href="{% url 'login' %}">Login</a>
