@@ -1,34 +1,68 @@
 {% extends 'main.html' %} {% block content %}
 
 {% if page == 'login' %}
-<div>
-  <form method="POST" action="">
-    {% csrf_token %}
+  <div>
+    <form method="POST" action="">
+      {% csrf_token %}
 
-    <label>Username</label>
-    <input type="text" name="username" placeholder="Enter Username..." />
+      <label>Username</label>
+      <input type="text" name="username" placeholder="Enter Username..." />
 
-    <label>Password</label>
-    <input type="password" name="password" placeholder="Enter Password..." />
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Enter Password..." />
 
-    <input type="submit" value="Login" />
-  </form>
+      <input type="submit" value="Login" />
+    </form>
 
-  <p>Haven't signed up yet?</p>
-  <a href="{% url 'register' %}">Sign Up</a>
-</div>
+    <!--TODO: Fix Reset Password Form-->
+    <a href="#">Forgot Password?</a>
 
+    <p>Haven't signed up yet?</p>
+    <a href="{% url 'register' %}">Sign Up</a>
+  </div>
+{% elif page == 'resetPass' %}
+  <div>
+    <form method="POST" action="">
+      {% csrf_token %}
+
+      {{ form.as_p }}
+      <input type="submit" value="Reset Password" />
+    </form>
+  </div>
+{% elif page == 'updateProfile' %}
+  <div>
+    <form method="POST" action="" enctype='multipart/form-data'>
+      {% csrf_token %} 
+      
+      <!--Render all the necessary forms simultaneously-->
+      <table>
+        {{ user_form.as_p }}
+        {{ profile_form.as_p }}
+      </table>
+
+      <input type="submit" value="Update" />
+    </form>
+  </div>
+{% elif page == 'changePassword' %}
+  <div>
+    <form method="POST" action="">
+      {% csrf_token %}
+
+      {{ form.as_p }}
+      <input type="submit" value="Change Password" />
+    </form>
+  </div>
 {% else %}
-<div>
-  <form method="POST" action="" enctype='multipart/form-data'>
-    {% csrf_token %} 
-    
-    {{ form.as_p }}
-    <input type="submit" value="Register" />
-  </form>
-  <p>Already signed up?</p>
-  <a href="{% url 'login' %}">Login</a>
-</div>
+  <div>
+    <form method="POST" action="" enctype='multipart/form-data'>
+      {% csrf_token %} 
+      
+      {{ form.as_p }}
+      <input type="submit" value="Register" />
+    </form>
+    <p>Already signed up?</p>
+    <a href="{% url 'login' %}">Login</a>
+  </div>
 {% endif %}
 
 {% endblock %}

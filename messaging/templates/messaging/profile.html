@@ -17,6 +17,9 @@
 				<img src="{{ profile.image.url }}" style="max-height:300px">
 			{% endif %}
 			<div class="bio">{{ profile.bio }}</div>
+
+			<hr>
+			<a class="btn btn-primary" href="{% url 'updateProfile' user.id %}" role="button">Update Profile</a>
 		</div>
 	</center>
 </body>

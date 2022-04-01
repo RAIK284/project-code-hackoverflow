@@ -1,9 +1,9 @@
 from django import forms
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import PasswordChangeForm, UserChangeForm, UserCreationForm
 from django.forms import ModelForm
 
-from .models import get_image_path, Message, Profile
+from .models import Message, Profile
 
 class ProfileCreateForm(UserCreationForm):
     """Form to allow a user to make a profile."""
@@ -17,7 +17,7 @@ class ProfileCreateForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'username']
+        fields = ['username', 'email', 'first_name', 'last_name']
 
     def save(self, commit=True):
         """Saves the data for a given profile (and tied user)."""
@@ -35,6 +35,23 @@ class ProfileCreateForm(UserCreationForm):
             profile.save()
         
         return user, profile
+
+class CustomUserChangeForm(UserChangeForm):
+    """Wrapper class to allow users to update only their relevant information."""
+    # Don't display password reset settings
+    password = None
+    
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name']
+
+class ProfileUpdateForm(ModelForm):
+    """Form to allow users to update their profile."""
+    image = forms.ImageField(required=False)
+
+    class Meta:
+        model = Profile
+        fields = ['bio', 'image', 'displayPoints', 'displayPurchases']
 
 class MessageSend(ModelForm):
     """Sends a message to other users."""

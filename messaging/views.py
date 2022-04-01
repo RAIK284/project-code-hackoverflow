@@ -1,13 +1,14 @@
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm, PasswordResetForm
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.shortcuts import render, redirect
 from functools import reduce
 import operator
 
-from .forms import ProfileCreateForm, MessageSend
+from .forms import CustomUserChangeForm, ProfileCreateForm, ProfileUpdateForm, MessageSend
 from .models import Profile, Conversation, Message, UserGroup
 
 def login_page(request):
@@ -46,6 +47,7 @@ def logout_user(request):
 
 def register_user_page(request):
     """View to let users register a profile."""
+    page = 'register'
     form = ProfileCreateForm()
 
     if request.method == 'POST':
@@ -64,7 +66,23 @@ def register_user_page(request):
         else:
             messages.error(request, 'An error occured during registration')
 
-    context = {'form': form}
+    context = {'form': form, 'page': page}
+    return render(request, 'messaging/login_register.html', context)
+
+def reset_password(request):
+    """View to let users reset their password."""
+    page = 'resetPass'
+
+    form = PasswordResetForm(request.POST or None)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save(request=request)
+            return redirect('login')
+        else:
+            messages.error(request, 'An error occurred during reset')
+
+    context = {'form': form, 'page': page}
     return render(request, 'messaging/login_register.html', context)
 
 def inbox(request):
@@ -107,6 +125,58 @@ def profile(request, pk):
     profile = user.profile
     context = {'user': user, 'profile': profile}
     return render(request, 'messaging/profile.html', context)
+
+@login_required(login_url='login')
+def change_password(request, pk):
+    """View to let users change their password."""
+    page = 'changePassword'
+
+    user = User.objects.get(id=pk)
+
+    if request.method == 'POST':
+        form = PasswordChangeForm(user, request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Successfully updated your password!')
+            return redirect('profile', user.id)
+        else:
+            messages.error(request, 'An error occurred during registration')
+    else:
+        form = PasswordChangeForm(user)
+
+    context = {'form': form, 'page': page}
+    return render(request, 'messaging/login_register.html', context)
+
+@login_required(login_url='login')
+def update_profile(request, pk):
+    """View to let users update their login information and profiles."""
+    page = 'updateProfile'
+
+    user = User.objects.get(id=pk)
+    profile = user.profile
+
+    if request.method == 'POST':
+        user_form = CustomUserChangeForm(request.POST, instance=user)
+        profile_form = ProfileUpdateForm(request.POST, request.FILES or None, instance=profile)
+
+        # Save the data if the form is valid
+        if user_form.is_valid() and profile_form.is_valid():
+            user = user_form.save(commit=False)
+            profile = profile_form.save(commit=False)
+
+            user.save()
+            profile.save()
+
+            return redirect('profile', user.id)
+        else:
+            messages.error(request, 'An error occured during registration')
+    else:
+        profile_form = ProfileUpdateForm(request.FILES or None, instance=profile)
+        user_form = CustomUserChangeForm(instance=user)
+
+    context = {'profile_form': profile_form, 'user_form': user_form, 'page': page}
+    return render(request, 'messaging/login_register.html', context)
 
 def leaderboard(request):
     """View for the global leaderboard."""
