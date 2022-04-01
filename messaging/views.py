@@ -85,11 +85,26 @@ def reset_password(request):
     context = {'form': form, 'page': page}
     return render(request, 'messaging/login_register.html', context)
 
+    
+@login_required(login_url='login')
 def inbox(request):
     """View for the user's inbox."""
     convos = Conversation.objects.filter(userGroup__members__in=[request.user.id])
     
-    context = {'convos': convos}
+    names = []
+    for convo in convos:
+        first_message = Message.objects.filter(conversation=convo)[0]
+        username_list = convo.name.split('-')
+        username_list.remove(request.user.username)
+        name_list = []
+        for username in username_list:
+            name_list.append(User.objects.get(username=username).get_full_name())
+        name = ', '.join(name_list)
+        names.append([convo, name, first_message])
+
+    user_name = request.user.get_full_name()
+    
+    context = {'names':names, 'user_name':user_name}
     return render(request, 'messaging/inbox.html', context)
 
 def send_message(request):
@@ -208,7 +223,7 @@ def create_convo(request):
         for username in send_to_list:
             user_group.members.add(User.objects.get(username=username))
 
-        convo = Conversation.objects.create(name=group_name, user_group=user_group)
+        convo = Conversation.objects.create(name=group_name, userGroup=user_group)
         convo.save()
         
         return user_group, convo

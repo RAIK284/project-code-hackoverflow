@@ -1,19 +1,5 @@
 {% extends 'main.html' %} {% block content %}
 
-<!-- Adds style to each of the messages -->
-<style>
-	.conversation p {
-		padding: 8px;
-		margin: 25px;
-
-		/* other styling */
-		background-color: #04aa6d;
-		border-radius: 10px;
-		color: white;
-		font-family: Avenir;
-	}
-</style>
-
 <div class="conversation">
 	<h3>{{ convo.name }}</h3>
 
@@ -28,9 +14,9 @@
 	<hr />
 
 	{% for message in messages %}
-	<div>
+	<div class="p-3 mb-2 bg-primary text-white">
 		{% if message.sender.first_name == first_name %}
-		<p>You: {{ message.body }}</p>
+		<p class="text-right">You: {{ message.body }}</p>
 		{% else %}
 		<p>{{ message.sender.first_name }}: {{ message.body }}</p>
 		{% endif %}

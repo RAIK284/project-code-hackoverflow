@@ -10,12 +10,17 @@
 <body>
 	<center>
 		<div class="profile-page">
+			{% if profile.image %}
+			<img
+				class="rounded-circle z-depth-2"
+				alt="100x100"
+				src="{{ profile.image.url }}"
+				style="max-height: 300px"
+			/>
+			{% endif %}
 			<h1>@{{ user.username }}</h1>
 			<h3>{{ user.get_full_name }}</h3>
 			<h4>{{ user.email }}</h4>
-			{% if profile.image %}
-				<img src="{{ profile.image.url }}" style="max-height:300px">
-			{% endif %}
 			<div class="bio">{{ profile.bio }}</div>
 
 			<hr>
