@@ -20,15 +20,6 @@
     <p>Haven't signed up yet?</p>
     <a href="{% url 'register' %}">Sign Up</a>
   </div>
-{% elif page == 'resetPass' %}
-  <div>
-    <form method="POST" action="">
-      {% csrf_token %}
-
-      {{ form.as_p }}
-      <input type="submit" value="Reset Password" />
-    </form>
-  </div>
 {% elif page == 'updateProfile' %}
   <div>
     <form method="POST" action="" enctype='multipart/form-data'>

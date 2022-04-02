@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import PasswordChangeForm, PasswordResetForm
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.shortcuts import render, redirect
@@ -69,23 +69,6 @@ def register_user_page(request):
     context = {'form': form, 'page': page}
     return render(request, 'messaging/login_register.html', context)
 
-def reset_password(request):
-    """View to let users reset their password."""
-    page = 'resetPass'
-
-    form = PasswordResetForm(request.POST or None)
-
-    if request.method == 'POST':
-        if form.is_valid():
-            form.save(request=request)
-            return redirect('login')
-        else:
-            messages.error(request, 'An error occurred during reset')
-
-    context = {'form': form, 'page': page}
-    return render(request, 'messaging/login_register.html', context)
-
-    
 @login_required(login_url='login')
 def inbox(request):
     """View for the user's inbox."""
