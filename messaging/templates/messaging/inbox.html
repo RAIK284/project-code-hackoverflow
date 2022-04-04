@@ -1,7 +1,7 @@
-{% extends 'main.html' %} {% block content %}
+{% extends 'main.html' %} {% block content %} {% load emoji_tags %}
 
 <div class="inbox-container">
-	<h1>Inbox</h1>
+	<h1>Inbox &#128512;</h1>
 	<div>
 		<ul class="list-group">
 			{% for convo, name, first in names %}
@@ -16,10 +16,9 @@
 					&emsp;{%if first.sender.get_full_name == user_name %}You:{% else %}
 					{{first.sender.first_name}}:
 					<br />
-					{% endif %} {{first}}
+					{% endif %} {{first|emoji_replace_unicode}}
 				</a>
 			</li>
-			<hr />
 			{% endfor %}
 			<p>
 				<a class="btn btn-success" href="{% url 'createConvo' %}" role="button">

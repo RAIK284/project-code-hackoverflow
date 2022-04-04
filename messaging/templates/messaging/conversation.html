@@ -1,4 +1,4 @@
-{% extends 'main.html' %} {% block content %}
+{% extends 'main.html' %} {% block content %} {% load emoji_tags %}
 
 <div class="conversation">
 	<h3>{{ convo.name }}</h3>
@@ -16,9 +16,9 @@
 	{% for message in messages %}
 	<div class="p-3 mb-2 bg-primary text-white">
 		{% if message.sender.first_name == first_name %}
-		<p class="text-right">You: {{ message.body }}</p>
+		<p class="text-right">You: {{ message.body|emoji_replace|emoji_replace}}</p>
 		{% else %}
-		<p>{{ message.sender.first_name }}: {{ message.body }}</p>
+		<p>{{ message.sender.first_name }}: {{ message.body|emoji_replace}}</p>
 		{% endif %}
 	</div>
 	{% endfor %}
