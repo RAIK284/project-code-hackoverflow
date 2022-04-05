@@ -139,7 +139,7 @@ def change_password(request, pk):
             messages.success(request, 'Successfully updated your password!')
             return redirect('profile', user.id)
         else:
-            messages.error(request, 'An error occurred during registration')
+            messages.error(request, 'An error occurred during password update')
     else:
         form = PasswordChangeForm(user)
 
@@ -168,7 +168,7 @@ def update_profile(request, pk):
 
             return redirect('profile', user.id)
         else:
-            messages.error(request, 'An error occured during registration')
+            messages.error(request, 'An error occured during profile update')
     else:
         profile_form = ProfileUpdateForm(request.FILES or None, instance=profile)
         user_form = CustomUserChangeForm(instance=user)

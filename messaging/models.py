@@ -1,5 +1,8 @@
+from datetime import timedelta
 from django.contrib.auth.models import User
+from django.core.mail import send_mail
 from django.db import models
+from django.utils import timezone
 import os
 
 def get_image_path(profile, filename):
@@ -21,6 +24,46 @@ class Profile(models.Model):
     #backpack = models.ManyToManyField(Item)
     displayPurchases = models.BooleanField(default=False)
     #purchases = models.ManyToManyField(Purchase)
+    #remindedRecently = models.BooleanField(default=False)
+
+    def _has_sent_message_recently(self, time_to_check: timedelta) -> bool:
+        """
+        Checks if a user has sent a message (in any conversation) in the last <time_to_check> set of time.
+
+        :param time_to_check - the max. amount of time that define "recent"
+        :return True if the user has sent a message recently, False if not
+        """
+        latest_user_message = None
+        try:
+            latest_user_message = Message.objects.filter(sender=self.user).latest('updated')
+        except Message.DoesNotExist:
+            return False
+
+        if not latest_user_message or timezone.now() - time_to_check > latest_user_message.updated:
+            return False
+
+        return True
+
+    def remind_user_to_send_message(self) -> None:
+        """
+        Sends an email to a user if they haven't sent a message recently.
+
+        :param profile - the user to remind
+        TODO: automate to routinely run
+        """
+        DAYS_TO_CHECK = 2
+        recent = self._has_sent_message_recently(timedelta(days=DAYS_TO_CHECK))
+
+        if not recent: #and not profile.remindedRecently
+            send_mail(
+                subject="Pawsitivity Reminder",
+                message=f"Hi {self.user.first_name}! We noticed you haven't sent any messages of positivity lately. We would love to see you again on Pawsitivity!",
+                from_email=None,
+                recipient_list=[self.user.email],
+                fail_silently=False
+            )
+            #self.remindedRecently = True
+            #self.save(['remindedRecently'])
 
     def __str__(self):
         name = self.user.first_name + ' ' + self.user.last_name
