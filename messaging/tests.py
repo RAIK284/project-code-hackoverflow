@@ -151,6 +151,11 @@ class MessageSendTests(TestCase):
     # TODO: need to write after implementation
     pass
 
+# Model Tests
+class ProfileModelTests(TestCase):
+    #TODO: write tests
+    pass
+
 # View Tests
 class ConversationViewTests(TestCase):
     def test_convo_one_message_convo_returned(self):

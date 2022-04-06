@@ -24,7 +24,6 @@ class Profile(models.Model):
     #backpack = models.ManyToManyField(Item)
     displayPurchases = models.BooleanField(default=False)
     #purchases = models.ManyToManyField(Purchase)
-    #remindedRecently = models.BooleanField(default=False)
 
     def _has_sent_message_recently(self, time_to_check: timedelta) -> bool:
         """
@@ -49,12 +48,11 @@ class Profile(models.Model):
         Sends an email to a user if they haven't sent a message recently.
 
         :param profile - the user to remind
-        TODO: automate to routinely run
         """
         DAYS_TO_CHECK = 2
         recent = self._has_sent_message_recently(timedelta(days=DAYS_TO_CHECK))
 
-        if not recent: #and not profile.remindedRecently
+        if not recent:
             send_mail(
                 subject="Pawsitivity Reminder",
                 message=f"Hi {self.user.first_name}! We noticed you haven't sent any messages of positivity lately. We would love to see you again on Pawsitivity!",
@@ -62,8 +60,6 @@ class Profile(models.Model):
                 recipient_list=[self.user.email],
                 fail_silently=False
             )
-            #self.remindedRecently = True
-            #self.save(['remindedRecently'])
 
     def __str__(self):
         name = self.user.first_name + ' ' + self.user.last_name
