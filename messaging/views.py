@@ -8,7 +8,6 @@ from django.shortcuts import render, redirect
 from functools import reduce
 import operator
 
-
 from .forms import CustomUserChangeForm, ProfileCreateForm, ProfileUpdateForm, MessageSend
 from .models import Profile, Conversation, Message, UserGroup
 
@@ -75,14 +74,20 @@ def inbox(request):
     """View for the user's inbox."""
     convos = Conversation.objects.filter(userGroup__members__in=[request.user.id])
     
+    # Prep the data to display
     names = []
     for convo in convos:
+        # Preview the first message
         first_message = Message.objects.filter(conversation=convo).first()
+
+        # Get the users' full names
         username_list = convo.name.split('-')
         username_list.remove(request.user.username)
         name_list = []
         for username in username_list:
             name_list.append(User.objects.get(username=username).get_full_name())
+
+        # Name the conversation based on users' full names
         name = ', '.join(name_list)
         names.append([convo, name, first_message])
 
@@ -105,7 +110,7 @@ def conversation(request, pk):
         members.append(member.get_full_name())
 
     if request.method == 'POST':
-        message = Message.objects.create(
+        _ = Message.objects.create(
             sender=request.user,
             conversation=convo,
             body=request.POST.get('body'),
@@ -199,8 +204,14 @@ def leaderboard(request):
 @login_required(login_url='login')
 def create_convo(request):
     """View to create a conversation for a user."""
-    def make_group_convo(group_name, send_to_list):
-        """Makes a group conversation."""
+    def _make_group_convo(group_name: str, send_to_list: list(str)) -> tuple(UserGroup, Conversation):
+        """
+        Make a group conversation.
+        
+        :param group_name - the name of the UserGroup
+        :param send_to_list - a list of usernames to add to the conversation
+        :return a tuple with the new UserGroup and Conversation
+        """
         user_group = UserGroup.objects.create(name=group_name)
         user_group.save()
 
@@ -211,7 +222,8 @@ def create_convo(request):
         convo.save()
         
         return user_group, convo
-        
+    
+    # Create a message if the user wants to
     form = MessageSend()
     if request.method == 'POST':
         send_to = request.POST.get('send_to')
@@ -228,11 +240,11 @@ def create_convo(request):
         # Query for if the user group exists
         user_group_Qset = UserGroup.objects.filter(reduce(operator.and_, (Q(name__icontains=x) for x in send_to_list)))
         if not user_group_Qset.exists():
-            user_group, convo = make_group_convo(group_name, send_to_list)
+            user_group, convo = _make_group_convo(group_name, send_to_list)
         else:
             user_group = UserGroup.objects.get(id=user_group_Qset[0].id)
             if user_group.members.all().count() > len(send_to_list):
-                user_group, convo = make_group_convo(group_name, send_to_list)
+                user_group, convo = _make_group_convo(group_name, send_to_list)
             else:
                 convo = user_group.conversation
 

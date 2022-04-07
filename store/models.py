@@ -1,7 +1,5 @@
 from django.db import models
-#from messaging.models import Profile
 import os
-from django.contrib.auth.models import User
 
 def get_image_path(instance, filename):
     """
