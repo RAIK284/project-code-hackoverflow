@@ -76,7 +76,7 @@ def inbox(request):
     
     names = []
     for convo in convos:
-        first_message = Message.objects.filter(conversation=convo)[0]
+        first_message = Message.objects.filter(conversation=convo).first()
         username_list = convo.name.split('-')
         username_list.remove(request.user.username)
         name_list = []
@@ -87,7 +87,7 @@ def inbox(request):
 
     user_name = request.user.get_full_name()
     
-    context = {'names':names, 'user_name':user_name}
+    context = {'names': names, 'user_name': user_name}
     return render(request, 'messaging/inbox.html', context)
 
 def send_message(request):
