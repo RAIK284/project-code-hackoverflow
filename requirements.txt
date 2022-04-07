@@ -2,3 +2,4 @@ django==4.0.2
 django-emoji==2.2.2
 django-environ==0.8.1
 psycopg2==2.9.3
+django-tinymce==5.0.1
