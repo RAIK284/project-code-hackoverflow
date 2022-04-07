@@ -16,9 +16,6 @@ def get_image_path(profile, filename):
 class Profile(models.Model):
     """Model controlling a user's profile data."""
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    
-    def __str__(self):
-        return self.user.name
     bio = models.TextField(max_length=200, null=True, blank=True)
     image = models.ImageField(upload_to=get_image_path, null=True)
     wallet = models.IntegerField(default=0)
@@ -46,17 +43,18 @@ class Profile(models.Model):
 
         return True
 
-    def remind_user_to_send_message(self) -> None:
+    def remind_user_to_send_message(self) -> int:
         """
         Sends an email to a user if they haven't sent a message recently.
 
-        :param profile - the user to remind
+        :return 0 if the message failed, or 1 if successful (1 message was sent)
         """
         DAYS_TO_CHECK = 2
         recent = self._has_sent_message_recently(timedelta(days=DAYS_TO_CHECK))
 
+        status = 0
         if not recent:
-            send_mail(
+            status = send_mail(
                 subject="Pawsitivity Reminder",
                 message=f"Hi {self.user.first_name}! We noticed you haven't sent any messages of positivity lately. We would love to see you again on Pawsitivity!",
                 from_email=None,
@@ -64,8 +62,10 @@ class Profile(models.Model):
                 fail_silently=False
             )
 
+        return status
+
     def __str__(self):
-        name = self.user.first_name + ' ' + self.user.last_name
+        name = self.user.name
         return name
     
 class UserGroup(models.Model):
