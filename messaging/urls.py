@@ -17,6 +17,7 @@ urlpatterns = [
 
     path('profile/<str:pk>', views.profile, name='profile'),
     path('updateProfile/<str:pk>', views.update_profile, name='updateProfile'),
+
     
     path('', views.inbox, name='inbox'),
 ]

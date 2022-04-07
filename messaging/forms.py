@@ -57,7 +57,7 @@ class ProfileUpdateForm(ModelForm):
 class MessageSend(ModelForm):
     """Sends a message to other users."""
     send_to = forms.CharField(required=True)
-    body = forms.CharField(widget=forms.Textarea(attrs={'id': 'body'}), required=True)
+    body = forms.CharField(widget=forms.Textarea(attrs={id: 'body'}), required=True)
 
     class Meta:
         model = Message
