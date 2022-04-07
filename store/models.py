@@ -1,6 +1,7 @@
 from django.db import models
-from messaging.models import Profile
+#from messaging.models import Profile
 import os
+from django.contrib.auth.models import User
 
 def get_image_path(instance, filename):
     """
@@ -20,7 +21,7 @@ class Product(models.Model):
     point_cost = models.IntegerField()
     amount_sold = models.IntegerField()
     image = models.ImageField(upload_to=get_image_path)
-
+    
     class Meta:
         # Order items alphabetically by default
         ordering = ['name']
@@ -30,7 +31,7 @@ class Product(models.Model):
 
 class Purchase(models.Model):
     """Model controlling the relationship between a user and their purchased item."""
-    buyer = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    buyer = models.ForeignKey("messaging.Profile", on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now=True)
 
