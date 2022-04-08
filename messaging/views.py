@@ -204,7 +204,7 @@ def leaderboard(request):
 @login_required(login_url='login')
 def create_convo(request):
     """View to create a conversation for a user."""
-    def _make_group_convo(group_name: str, send_to_list: list(str)) -> tuple(UserGroup, Conversation):
+    def _make_group_convo(group_name: str, send_to_list: list[str]) -> tuple[UserGroup, Conversation]:
         """
         Make a group conversation.
         
