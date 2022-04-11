@@ -33,6 +33,7 @@ def sendPoints(newMessage, members, convo, sender):
     for member in convo.userGroup.members.all():
         if member.username != sender.username:
             Profile.objects.filter(user=member).update(wallet = (int)(member.profile.wallet +  (pointsToSend / (len(members) - 1))))
+            Profile.objects.filter(user=member).update(allTimePoints = (int)(member.profile.allTimePoints +  (pointsToSend / (len(members) - 1))))
     
 
 def login_page(request):

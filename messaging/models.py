@@ -26,7 +26,6 @@ class Profile(models.Model):
     points = models.IntegerField(default=0)
     allTimePoints = models.IntegerField(default=0)
     displayPurchases = models.BooleanField(default=False)
-    purchases = models.ManyToManyField(Purchase)
 
     def _has_sent_message_recently(self, time_to_check: timedelta) -> bool:
         """
