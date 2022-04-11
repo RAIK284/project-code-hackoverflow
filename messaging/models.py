@@ -65,7 +65,7 @@ class Profile(models.Model):
         return status
 
     def __str__(self):
-        name = self.user.name
+        name = self.user.username
         return name
     
 class UserGroup(models.Model):
