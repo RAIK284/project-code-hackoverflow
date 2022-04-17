@@ -35,6 +35,29 @@
 			>
 				Update Profile
 			</a>
+
+			{% if profile.displayPurchases %}
+			<hr />
+			<div>
+				<h4>Purchases</h4>
+				{% if purchases.count > 0 %}
+					{% for purchase in purchases %}
+						<!-- TODO: needs to be formatted nicely -->
+						<div>
+							<h5>{{ purchase.product.name }}</h5>
+							<img
+								class="z-depth-2"
+								alt="100x100"
+								src="{{ purchase.product.image.url }}"
+								style="max-height: 300px"
+							/>
+						</div>
+					{% endfor %}
+				{% else %}
+					<h5>Go buy something!</h5>
+				{% endif %}
+			</div>
+			{% endif %}
 		</div>
 	</center>
 </body>
