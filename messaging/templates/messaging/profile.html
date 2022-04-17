@@ -21,10 +21,20 @@
 			<h1>@{{ user.username }}</h1>
 			<h3>{{ user.get_full_name }}</h3>
 			<h4>{{ user.email }}</h4>
+			<h4>
+				{% if profile.displayPoints %}Points: {{profile.points}}{% endif %}
+			</h4>
+			<h4>Wallet: {{profile.wallet}}</h4>
 			<div class="bio">{{ profile.bio }}</div>
 
-			<hr>
-			<a class="btn btn-primary" href="{% url 'updateProfile' user.id %}" role="button">Update Profile</a>
+			<hr />
+			<a
+				class="btn btn-primary"
+				href="{% url 'updateProfile' user.id %}"
+				role="button"
+			>
+				Update Profile
+			</a>
 		</div>
 	</center>
 </body>

@@ -1,8 +1,11 @@
 from datetime import timedelta
+from email.policy import default
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.db import models
 from django.utils import timezone
+
+from store.models import Purchase
 import os
 
 def get_image_path(profile, filename):
@@ -21,9 +24,8 @@ class Profile(models.Model):
     wallet = models.IntegerField(default=0)
     displayPoints = models.BooleanField(default=False)
     points = models.IntegerField(default=0)
-    #backpack = models.ManyToManyField(Item)
+    allTimePoints = models.IntegerField(default=0)
     displayPurchases = models.BooleanField(default=False)
-    #purchases = models.ManyToManyField(Purchase)
 
     def _has_sent_message_recently(self, time_to_check: timedelta) -> bool:
         """
@@ -65,7 +67,7 @@ class Profile(models.Model):
         return status
 
     def __str__(self):
-        name = self.user.name
+        name = self.user.username
         return name
     
 class UserGroup(models.Model):

@@ -58,6 +58,17 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+TINYMCE_DEFAULT_CONFIG = {
+    'cleanup_on_startup': True,
+    'selector': "textarea",
+    'plugins': "emoticons textcolor",
+    'toolbar': "emoticons",
+    'toolbar_location': "bottom",
+    'menubar': False,
+    'height': 200,
+    'width': 600,
+}
+
 ROOT_URLCONF = 'hackoverflow.urls'
 
 TEMPLATES = [

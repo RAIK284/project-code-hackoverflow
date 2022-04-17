@@ -1,3 +1,4 @@
+from ipaddress import v4_int_to_packed
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
@@ -10,6 +11,30 @@ import operator
 
 from .forms import CustomUserChangeForm, ProfileCreateForm, ProfileUpdateForm, MessageSend
 from .models import Profile, Conversation, Message, UserGroup
+
+def getPoints(body):
+    emoji_list = ["🐶", "🐱", "🦋", "🐢", "🦄", "🐰", "🐾", "🦩", "🦈", "🦖"]
+    points = 0
+    for em in emoji_list:
+        points += body.count(em) * 10
+    return points
+
+def sendPoints(newMessage, members, convo, sender):
+    print('Members:' + str(members))
+    totalPoints = newMessage.points * (len(members) - 1)
+    pointsToSend = 0
+    if sender.profile.points < totalPoints:
+        pointsToSend = sender.profile.points
+    else:
+        pointsToSend = totalPoints
+    print("To send:" + str(pointsToSend))
+    Profile.objects.filter(user=sender).update(points = (sender.profile.points - pointsToSend))
+
+    for member in convo.userGroup.members.all():
+        if member.username != sender.username:
+            Profile.objects.filter(user=member).update(wallet = (int)(member.profile.wallet +  (pointsToSend / (len(members) - 1))))
+            Profile.objects.filter(user=member).update(allTimePoints = (int)(member.profile.allTimePoints +  (pointsToSend / (len(members) - 1))))
+    
 
 def login_page(request):
     """View for the site's login page."""
@@ -110,12 +135,15 @@ def conversation(request, pk):
         members.append(member.get_full_name())
 
     if request.method == 'POST':
-        _ = Message.objects.create(
+        newMessage = Message.objects.create(
             sender=request.user,
             conversation=convo,
-            body=request.POST.get('body'),
-            points = 0,
+            body=request.POST.get('body')[3:-4],
+            points = getPoints(request.POST.get('body')[3:-4].replace("&nbsp;", "")),
         )
+        
+        sendPoints(newMessage, members, convo, newMessage.sender)
+
         return redirect('conversation', pk=convo.id)
 
     first_name = request.user.first_name
@@ -222,6 +250,8 @@ def create_convo(request):
         convo.save()
         
         return user_group, convo
+
+    
     
     # Create a message if the user wants to
     form = MessageSend()
@@ -247,13 +277,20 @@ def create_convo(request):
                 user_group, convo = _make_group_convo(group_name, send_to_list)
             else:
                 convo = user_group.conversation
+        
+        print(body)
 
-        Message.objects.create(
+        newMessage = Message.objects.create(
             sender=request.user,
             conversation=convo,
-            body=body,
-            points=0,
+            body=request.POST.get('body')[3:-4],
+            points = getPoints(request.POST.get('body')[3:-4].replace("&nbsp;", "")),
         )
+        members = []
+        for member in convo.userGroup.members.all():
+            members.append(member.get_full_name())
+
+        sendPoints(newMessage, members, convo, newMessage.sender)
 
         return redirect('conversation', pk=convo.id)
 
