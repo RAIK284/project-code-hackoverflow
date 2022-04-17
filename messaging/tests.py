@@ -146,10 +146,6 @@ class ProfileCreateFormTests(TestCase):
         form = ProfileCreateForm(data=form_data)
         self.assertFalse(form.is_valid(), msg="Expected the form to be invalid with missing data, but it was marked valid.")
 
-class MessageSendTests(TestCase):
-    # TODO: need to write after implementation
-    pass
-
 # Model Tests
 class ProfileModelTests(TestCase):
     def test_profile_remind_user_no_messages(self):
