@@ -49,7 +49,7 @@
 			{% endif %}
 
 			<!-- Only show purchases if toggled on -->
-			{% if profile.displayPurchases %}
+			{% if profile.displayPurchases or current_user.username == user.username%}
 			<hr />
 			<div>
 				<h4>Purchases</h4>
