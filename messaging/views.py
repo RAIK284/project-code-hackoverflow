@@ -1,6 +1,7 @@
 from ipaddress import v4_int_to_packed
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
@@ -269,30 +270,33 @@ def create_convo(request):
 
         # Query for if the user group exists
         user_group_Qset = UserGroup.objects.filter(reduce(operator.and_, (Q(name__icontains=x) for x in send_to_list)))
-        if not user_group_Qset.exists():
-            user_group, convo = _make_group_convo(group_name, send_to_list)
-        else:
-            user_group = UserGroup.objects.get(id=user_group_Qset[0].id)
-            if user_group.members.all().count() > len(send_to_list):
+        try:
+            if not user_group_Qset.exists():
                 user_group, convo = _make_group_convo(group_name, send_to_list)
             else:
-                convo = user_group.conversation
-        
-        print(body)
+                user_group = UserGroup.objects.get(id=user_group_Qset[0].id)
+                if user_group.members.all().count() > len(send_to_list):
+                    user_group, convo = _make_group_convo(group_name, send_to_list)
+                else:
+                    convo = user_group.conversation
+            print(body)
 
-        newMessage = Message.objects.create(
-            sender=request.user,
-            conversation=convo,
-            body=request.POST.get('body')[3:-4],
-            points = getPoints(request.POST.get('body')[3:-4].replace("&nbsp;", "")),
-        )
-        members = []
-        for member in convo.userGroup.members.all():
-            members.append(member.get_full_name())
+            newMessage = Message.objects.create(
+                sender=request.user,
+                conversation=convo,
+                body=request.POST.get('body')[3:-4],
+                points = getPoints(request.POST.get('body')[3:-4].replace("&nbsp;", "")),
+            )
+            members = []
+            for member in convo.userGroup.members.all():
+                members.append(member.get_full_name())
 
-        sendPoints(newMessage, members, convo, newMessage.sender)
+            sendPoints(newMessage, members, convo, newMessage.sender)
 
-        return redirect('conversation', pk=convo.id)
+            return redirect('conversation', pk=convo.id)
+        except ObjectDoesNotExist as e:
+            messages.error(request, e)
+
 
     context = {'form': form}
     return render(request, 'messaging/new_convo.html', context)
