@@ -167,11 +167,12 @@ def conversation(request, pk):
 @login_required(login_url='login')
 def profile(request, pk):
     """View for a user's own profile."""
+    current_user = request.user
     user = User.objects.get(id=pk)
     profile = user.profile
     purchases = Purchase.objects.filter(buyer=profile)
 
-    context = {'user': user, 'profile': profile, 'purchases': purchases}
+    context = {'current_user': current_user, 'user': user, 'profile': profile, 'purchases': purchases}
     return render(request, 'messaging/profile.html', context)
 
 @login_required(login_url='login')
