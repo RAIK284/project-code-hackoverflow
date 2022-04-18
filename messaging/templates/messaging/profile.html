@@ -22,12 +22,16 @@
 			<h3>{{ user.get_full_name }}</h3>
 			<h4>{{ user.email }}</h4>
 			<h4>
-				{% if profile.displayPoints %}Points: {{profile.points}}{% endif %}
+				{% if profile.displayPoints or loggedIn == user.id%}Points:
+				{{profile.points}}{% endif %}
 			</h4>
+			{% if loggedIn == user.id %}
 			<h4>Wallet: {{profile.wallet}}</h4>
+			{% endif %}
 			<div class="bio">{{ profile.bio }}</div>
 
 			<hr />
+			{% if loggedIn == user.id %}
 			<a
 				class="btn btn-primary"
 				href="{% url 'updateProfile' user.id %}"
@@ -35,26 +39,23 @@
 			>
 				Update Profile
 			</a>
-
-			{% if profile.displayPurchases %}
+			{% endif %} {% if profile.displayPurchases or loggedIn == user.id%}
 			<hr />
 			<div>
 				<h4>Purchases</h4>
-				{% if purchases.count > 0 %}
-					{% for purchase in purchases %}
-						<!-- TODO: needs to be formatted nicely -->
-						<div>
-							<h5>{{ purchase.product.name }}</h5>
-							<img
-								class="z-depth-2"
-								alt="100x100"
-								src="{{ purchase.product.image.url }}"
-								style="max-height: 300px"
-							/>
-						</div>
-					{% endfor %}
-				{% else %}
-					<h5>Go buy something!</h5>
+				{% if purchases.count > 0 %} {% for purchase in purchases %}
+				<!-- TODO: needs to be formatted nicely -->
+				<div>
+					<h5>{{ purchase.product.name }}</h5>
+					<img
+						class="z-depth-2"
+						alt="100x100"
+						src="{{ purchase.product.image.url }}"
+						style="max-height: 300px"
+					/>
+				</div>
+				{% endfor %} {% else %}
+				<h5>Go buy something!</h5>
 				{% endif %}
 			</div>
 			{% endif %}

@@ -3,12 +3,12 @@
 <h1>Leaderboard</h1>
 <hr />
 
-{% for user, points in users %}
-    <div>
-        <a>{{ user }}</a>
-        <a>{{ points }}</a>
-        <hr />
-    </div>
-{% endfor %}
-
-{% endblock %}
+{% for user, points, username, id in users %}
+<div>
+	<a>{{ user }}</a>
+	:
+	<a href="{% url 'profile' id%}">{{username}}</a>
+	<a>{{ points }}</a>
+	<hr />
+</div>
+{% endfor %} {% endblock %}
