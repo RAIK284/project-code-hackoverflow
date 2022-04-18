@@ -180,6 +180,10 @@ def profile(request, pk):
 @login_required(login_url='login')
 def change_password(request, pk):
     """View to let users change their password."""
+    if request.user.id != pk:
+        messages.error(request, "You can't edit another user's password!")
+        return redirect('profile', request.user.id)
+
     page = 'changePassword'
 
     user = User.objects.get(id=pk)
@@ -202,6 +206,10 @@ def change_password(request, pk):
 @login_required(login_url='login')
 def update_profile(request, pk):
     """View to let users update their login information and profiles."""
+    if request.user.id != pk:
+        messages.error(request, "You can't edit another user's profile!")
+        return redirect('profile', request.user.id)
+
     page = 'updateProfile'
 
     user = User.objects.get(id=pk)
