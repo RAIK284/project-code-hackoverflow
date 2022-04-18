@@ -170,6 +170,7 @@ def profile(request, pk):
     """View for a user's own profile."""
     current_user = request.user
     user = User.objects.get(id=pk)
+    loggedIn = request.user.id
     profile = user.profile
     purchases = Purchase.objects.filter(buyer=profile)
 
@@ -243,15 +244,19 @@ def leaderboard(request):
     user_points = Profile.objects.filter(displayPoints=True).values('points', 'user').order_by('-points')[:NUM_USERS_TO_SHOW]
 
     # Prepare data for each user on the leaderboard
-    user_names = []
+    userFullNames = []
+    usernames = []
+    ids = []
     points = []
     for obj in user_points:
         user = obj['user']
         point = obj['points']
         points.append(point)
-        user_names.append(User.objects.get(id=user).get_full_name())
+        userFullNames.append(User.objects.get(id=user).get_full_name())
+        usernames.append(User.objects.get(id=user).username)
+        ids.append(user)
 
-    user_data = list(zip(user_names, points))
+    user_data = list(zip(userFullNames, points, usernames, ids))
     context = {'users': user_data}
     return render(request, 'messaging/leaderboard.html', context)
 

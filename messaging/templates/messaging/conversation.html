@@ -36,7 +36,12 @@
 		<p class="text-right">You: {{ message.body|emoji_replace|emoji_replace}}</p>
 		<p class="text-right">Points: {{ message.points }}</p>
 		{% else %}
-		<p>{{ message.sender.first_name }}: {{ message.body|emoji_replace}}</p>
+		<p>
+			<a href="{% url 'profile' message.sender.id%}">
+				@{{ message.sender.username }}
+			</a>
+			: {{ message.body|emoji_replace}}
+		</p>
 		<p>Points: {{ message.points }}</p>
 		{% endif %}
 	</div>
