@@ -12,23 +12,38 @@ import operator
 
 from .forms import CustomUserChangeForm, ProfileCreateForm, ProfileUpdateForm, MessageSend
 from .models import Profile, Conversation, Message, UserGroup
+from store.models import Purchase
 
-def getPoints(body):
+def getPoints(body: str) -> int:
+    """
+    Helper function that gets the number of points in a given message.
+    
+    :param body - the body of the message
+    :return the total number of points in the message
+    """
     emoji_list = ["🐶", "🐱", "🦋", "🐢", "🦄", "🐰", "🐾", "🦩", "🦈", "🦖"]
     points = 0
     for em in emoji_list:
         points += body.count(em) * 10
     return points
 
-def sendPoints(newMessage, members, convo, sender):
-    print('Members:' + str(members))
+def sendPoints(newMessage: Message, members: list[User], convo: Conversation, sender: User) -> None:
+    """
+    Helper function to send points from the sender user to all the other members of a conversation.
+
+    :param newMessage - the new message being sent
+    :param members - all of the users in the conversation
+    :param convo - the Conversation
+    :param sender - the user sending the message
+    """
+    # print('Members:' + str(members))
     totalPoints = newMessage.points * (len(members) - 1)
     pointsToSend = 0
     if sender.profile.points < totalPoints:
         pointsToSend = sender.profile.points
     else:
         pointsToSend = totalPoints
-    print("To send:" + str(pointsToSend))
+    # print("To send:" + str(pointsToSend))
     Profile.objects.filter(user=sender).update(points = (sender.profile.points - pointsToSend))
 
     for member in convo.userGroup.members.all():
@@ -36,7 +51,6 @@ def sendPoints(newMessage, members, convo, sender):
             Profile.objects.filter(user=member).update(wallet = (int)(member.profile.wallet +  (pointsToSend / (len(members) - 1))))
             Profile.objects.filter(user=member).update(allTimePoints = (int)(member.profile.allTimePoints +  (pointsToSend / (len(members) - 1))))
     
-
 def login_page(request):
     """View for the site's login page."""
     page = 'login'
@@ -156,7 +170,9 @@ def profile(request, pk):
     """View for a user's own profile."""
     user = User.objects.get(id=pk)
     profile = user.profile
-    context = {'user': user, 'profile': profile}
+    purchases = Purchase.objects.filter(buyer=profile)
+
+    context = {'user': user, 'profile': profile, 'purchases': purchases}
     return render(request, 'messaging/profile.html', context)
 
 @login_required(login_url='login')
@@ -252,8 +268,6 @@ def create_convo(request):
         
         return user_group, convo
 
-    
-    
     # Create a message if the user wants to
     form = MessageSend()
     if request.method == 'POST':

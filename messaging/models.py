@@ -1,11 +1,8 @@
 from datetime import timedelta
-from email.policy import default
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.db import models
 from django.utils import timezone
-
-from store.models import Purchase
 import os
 
 def get_image_path(profile, filename):
