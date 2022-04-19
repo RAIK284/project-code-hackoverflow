@@ -8,11 +8,14 @@
         
         {{ form.as_p }}
         <a href="{% url 'index' %}">Go back</a>
+
         <h1>{{ product.name }}</h1>
         <p>Cost: {{ product.point_cost }} points</p>
         <p>{{ product.amount_sold }} sold</p>
-        <img src="{{ product.image.url }}" style="max-height:300px">
+
+        <img src="{{ product.image.url }}" alt="image for product: {{ product.name }}" style="max-height:100px">
         <a href="{% url 'buy_page' product.id %}", type = "submit", value = "Send">Buy</a>
+        
         <p>Last three users purchasing item:</p>
         {% for user in recent_purchasers %}
         <p>{{ user }}</p>
@@ -21,10 +24,10 @@
 
 
       {% for message in messages %}
-    <div class="alert alert-success">
+      <div class="alert alert-success">
         <a class="close" href="#" data-dismiss="alert">×</a>
            {{ message }}
-    </div>
+      </div>
       {% endfor %}
 </div>
 

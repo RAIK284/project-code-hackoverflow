@@ -170,7 +170,6 @@ def profile(request, pk):
     """View for a user's own profile."""
     current_user = request.user
     user = User.objects.get(id=pk)
-    loggedIn = request.user.id
     profile = user.profile
     purchases = Purchase.objects.filter(buyer=profile)
 
@@ -180,7 +179,7 @@ def profile(request, pk):
 @login_required(login_url='login')
 def change_password(request, pk):
     """View to let users change their password."""
-    if request.user.id != pk:
+    if request.user.id != int(pk):
         messages.error(request, "You can't edit another user's password!")
         return redirect('profile', request.user.id)
 
@@ -206,7 +205,7 @@ def change_password(request, pk):
 @login_required(login_url='login')
 def update_profile(request, pk):
     """View to let users update their login information and profiles."""
-    if request.user.id != pk:
+    if request.user.id != int(pk):
         messages.error(request, "You can't edit another user's profile!")
         return redirect('profile', request.user.id)
 
@@ -244,19 +243,15 @@ def leaderboard(request):
     user_points = Profile.objects.filter(displayPoints=True).values('points', 'user').order_by('-points')[:NUM_USERS_TO_SHOW]
 
     # Prepare data for each user on the leaderboard
-    userFullNames = []
-    usernames = []
-    ids = []
+    user_names = []
     points = []
     for obj in user_points:
         user = obj['user']
         point = obj['points']
         points.append(point)
-        userFullNames.append(User.objects.get(id=user).get_full_name())
-        usernames.append(User.objects.get(id=user).username)
-        ids.append(user)
+        user_names.append(User.objects.get(id=user).get_full_name())
 
-    user_data = list(zip(userFullNames, points, usernames, ids))
+    user_data = list(zip(user_names, points))
     context = {'users': user_data}
     return render(request, 'messaging/leaderboard.html', context)
 
