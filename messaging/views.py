@@ -1,5 +1,7 @@
+from ipaddress import v4_int_to_packed
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
@@ -8,10 +10,47 @@ from django.shortcuts import render, redirect
 from functools import reduce
 import operator
 
-
 from .forms import CustomUserChangeForm, ProfileCreateForm, ProfileUpdateForm, MessageSend
 from .models import Profile, Conversation, Message, UserGroup
+from store.models import Purchase
 
+def getPoints(body: str) -> int:
+    """
+    Helper function that gets the number of points in a given message.
+    
+    :param body - the body of the message
+    :return the total number of points in the message
+    """
+    emoji_list = ["🐶", "🐱", "🦋", "🐢", "🦄", "🐰", "🐾", "🦩", "🦈", "🦖"]
+    points = 0
+    for em in emoji_list:
+        points += body.count(em) * 10
+    return points
+
+def sendPoints(newMessage: Message, members: list[User], convo: Conversation, sender: User) -> None:
+    """
+    Helper function to send points from the sender user to all the other members of a conversation.
+
+    :param newMessage - the new message being sent
+    :param members - all of the users in the conversation
+    :param convo - the Conversation
+    :param sender - the user sending the message
+    """
+    # print('Members:' + str(members))
+    totalPoints = newMessage.points * (len(members) - 1)
+    pointsToSend = 0
+    if sender.profile.points < totalPoints:
+        pointsToSend = sender.profile.points
+    else:
+        pointsToSend = totalPoints
+    # print("To send:" + str(pointsToSend))
+    Profile.objects.filter(user=sender).update(points = (sender.profile.points - pointsToSend))
+
+    for member in convo.userGroup.members.all():
+        if member.username != sender.username:
+            Profile.objects.filter(user=member).update(wallet = (int)(member.profile.wallet +  (pointsToSend / (len(members) - 1))))
+            Profile.objects.filter(user=member).update(allTimePoints = (int)(member.profile.allTimePoints +  (pointsToSend / (len(members) - 1))))
+    
 def login_page(request):
     """View for the site's login page."""
     page = 'login'
@@ -75,20 +114,26 @@ def inbox(request):
     """View for the user's inbox."""
     convos = Conversation.objects.filter(userGroup__members__in=[request.user.id])
     
+    # Prep the data to display
     names = []
     for convo in convos:
-        first_message = Message.objects.filter(conversation=convo)[0]
+        # Preview the first message
+        first_message = Message.objects.filter(conversation=convo).first()
+
+        # Get the users' full names
         username_list = convo.name.split('-')
         username_list.remove(request.user.username)
         name_list = []
         for username in username_list:
             name_list.append(User.objects.get(username=username).get_full_name())
+
+        # Name the conversation based on users' full names
         name = ', '.join(name_list)
         names.append([convo, name, first_message])
 
     user_name = request.user.get_full_name()
     
-    context = {'names':names, 'user_name':user_name}
+    context = {'names': names, 'user_name': user_name}
     return render(request, 'messaging/inbox.html', context)
 
 def send_message(request):
@@ -105,12 +150,15 @@ def conversation(request, pk):
         members.append(member.get_full_name())
 
     if request.method == 'POST':
-        message = Message.objects.create(
+        newMessage = Message.objects.create(
             sender=request.user,
             conversation=convo,
-            body=request.POST.get('body'),
-            points = 0,
+            body=request.POST.get('body')[3:-4],
+            points = getPoints(request.POST.get('body')[3:-4].replace("&nbsp;", "")),
         )
+        
+        sendPoints(newMessage, members, convo, newMessage.sender)
+
         return redirect('conversation', pk=convo.id)
 
     first_name = request.user.first_name
@@ -120,14 +168,22 @@ def conversation(request, pk):
 @login_required(login_url='login')
 def profile(request, pk):
     """View for a user's own profile."""
+    current_user = request.user
     user = User.objects.get(id=pk)
+    loggedIn = request.user.id
     profile = user.profile
-    context = {'user': user, 'profile': profile}
+    purchases = Purchase.objects.filter(buyer=profile)
+
+    context = {'current_user': current_user, 'user': user, 'profile': profile, 'purchases': purchases}
     return render(request, 'messaging/profile.html', context)
 
 @login_required(login_url='login')
 def change_password(request, pk):
     """View to let users change their password."""
+    if request.user.id != pk:
+        messages.error(request, "You can't edit another user's password!")
+        return redirect('profile', request.user.id)
+
     page = 'changePassword'
 
     user = User.objects.get(id=pk)
@@ -150,6 +206,10 @@ def change_password(request, pk):
 @login_required(login_url='login')
 def update_profile(request, pk):
     """View to let users update their login information and profiles."""
+    if request.user.id != pk:
+        messages.error(request, "You can't edit another user's profile!")
+        return redirect('profile', request.user.id)
+
     page = 'updateProfile'
 
     user = User.objects.get(id=pk)
@@ -184,23 +244,33 @@ def leaderboard(request):
     user_points = Profile.objects.filter(displayPoints=True).values('points', 'user').order_by('-points')[:NUM_USERS_TO_SHOW]
 
     # Prepare data for each user on the leaderboard
-    user_names = []
+    userFullNames = []
+    usernames = []
+    ids = []
     points = []
     for obj in user_points:
         user = obj['user']
         point = obj['points']
         points.append(point)
-        user_names.append(User.objects.get(id=user).get_full_name())
+        userFullNames.append(User.objects.get(id=user).get_full_name())
+        usernames.append(User.objects.get(id=user).username)
+        ids.append(user)
 
-    user_data = list(zip(user_names, points))
+    user_data = list(zip(userFullNames, points, usernames, ids))
     context = {'users': user_data}
     return render(request, 'messaging/leaderboard.html', context)
 
 @login_required(login_url='login')
 def create_convo(request):
     """View to create a conversation for a user."""
-    def make_group_convo(group_name, send_to_list):
-        """Makes a group conversation."""
+    def _make_group_convo(group_name: str, send_to_list: list[str]) -> tuple[UserGroup, Conversation]:
+        """
+        Make a group conversation.
+        
+        :param group_name - the name of the UserGroup
+        :param send_to_list - a list of usernames to add to the conversation
+        :return a tuple with the new UserGroup and Conversation
+        """
         user_group = UserGroup.objects.create(name=group_name)
         user_group.save()
 
@@ -211,7 +281,8 @@ def create_convo(request):
         convo.save()
         
         return user_group, convo
-        
+
+    # Create a message if the user wants to
     form = MessageSend()
     if request.method == 'POST':
         send_to = request.POST.get('send_to')
@@ -227,23 +298,33 @@ def create_convo(request):
 
         # Query for if the user group exists
         user_group_Qset = UserGroup.objects.filter(reduce(operator.and_, (Q(name__icontains=x) for x in send_to_list)))
-        if not user_group_Qset.exists():
-            user_group, convo = make_group_convo(group_name, send_to_list)
-        else:
-            user_group = UserGroup.objects.get(id=user_group_Qset[0].id)
-            if user_group.members.all().count() > len(send_to_list):
-                user_group, convo = make_group_convo(group_name, send_to_list)
+        try:
+            if not user_group_Qset.exists():
+                user_group, convo = _make_group_convo(group_name, send_to_list)
             else:
-                convo = user_group.conversation
+                user_group = UserGroup.objects.get(id=user_group_Qset[0].id)
+                if user_group.members.all().count() > len(send_to_list):
+                    user_group, convo = _make_group_convo(group_name, send_to_list)
+                else:
+                    convo = user_group.conversation
+            print(body)
 
-        Message.objects.create(
-            sender=request.user,
-            conversation=convo,
-            body=body,
-            points=0,
-        )
+            newMessage = Message.objects.create(
+                sender=request.user,
+                conversation=convo,
+                body=request.POST.get('body')[3:-4],
+                points = getPoints(request.POST.get('body')[3:-4].replace("&nbsp;", "")),
+            )
+            members = []
+            for member in convo.userGroup.members.all():
+                members.append(member.get_full_name())
 
-        return redirect('conversation', pk=convo.id)
+            sendPoints(newMessage, members, convo, newMessage.sender)
+
+            return redirect('conversation', pk=convo.id)
+        except ObjectDoesNotExist as e:
+            messages.error(request, e)
+
 
     context = {'form': form}
     return render(request, 'messaging/new_convo.html', context)

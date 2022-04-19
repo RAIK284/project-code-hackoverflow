@@ -1,8 +1,9 @@
+from datetime import timedelta
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
-
-from messaging.views import conversation, profile
+from django.utils import timezone
+from freezegun import freeze_time
 
 from .forms import ProfileCreateForm
 from .models import Conversation, Message, Profile, UserGroup
@@ -140,21 +141,42 @@ class ProfileCreateFormTests(TestCase):
             'password1': 'YuR46aeZR',
             'password2': 'YuR46aeZR',
             'first_name': 'Leslie',
-            'last_name': 'Knope',
-            'email': 'lknope@pawnee.com'
         }
 
         form = ProfileCreateForm(data=form_data)
         self.assertFalse(form.is_valid(), msg="Expected the form to be invalid with missing data, but it was marked valid.")
 
-class MessageSendTests(TestCase):
-    # TODO: need to write after implementation
-    pass
-
 # Model Tests
 class ProfileModelTests(TestCase):
-    #TODO: write tests
-    pass
+    def test_profile_remind_user_no_messages(self):
+        """Tests that a user will get an email if they have never sent a message."""
+        prof = create_profile('jgeng', 'Jerry', 'Gengert', False, 0)
+        actual_response = prof.remind_user_to_send_message()
+        self.assertEquals(1, actual_response, f"Expected one email to be sent to a user with no messages, but {actual_response} was/were sent.")
+    
+    def test_profile_remind_user_not_sent_recent(self):
+        """Tests that a user will get an email if they haven't sent a message recently (last 2 days)."""
+        DAYS_TO_CHECK = 2
+        sender = create_profile('rswanson', 'Ron', 'Swanson', False, 0)
+        receiver = create_profile('aperkins', 'Anne', 'Perkins', True, 0, display_purchases=True)
+
+        # Freeze time so that the message occurs in the past
+        convo = create_convo("Positive Conversation.", [sender, receiver])
+        with freeze_time(timezone.now() - timedelta(DAYS_TO_CHECK + 1)):
+            _ = create_message(sender, convo, "This is a positive message. Hello.")
+
+        actual_response = sender.remind_user_to_send_message()
+        self.assertEquals(1, actual_response, f"Expected one email to be sent to a user with no recent messages, but {actual_response} was/were sent.")
+
+    def test_profile_remind_user_sent_recent(self):
+        """Tests that a user won't get an email if they sent a message recently (last 2 days)."""
+        sender = create_profile('rswanson', 'Ron', 'Swanson', False, 0)
+        receiver = create_profile('tomh', 'Tom', 'Haverford', True, 0, display_purchases=True)
+        convo = create_convo("Positive Conversation.", [sender, receiver])
+        _ = create_message(sender, convo, "This is a positive message. Hello.")
+
+        actual_response = sender.remind_user_to_send_message()
+        self.assertEquals(0, actual_response, f"Expected no email to be sent to a user with a recent message, but {actual_response} was/were sent.")
 
 # View Tests
 class ConversationViewTests(TestCase):
@@ -242,13 +264,15 @@ class ConversationViewTests(TestCase):
 class InboxViewTests(TestCase):
     def test_inbox_no_display_no_convos(self):
         """Tests that no conversations are rendered when none exist for a user."""
-        profile1 = create_profile("mscott", "Michael", "Scott", True, 0)
+        prof = create_profile("mscott", "Michael", "Scott", True, 0)
+
+        self.client.force_login(prof.user)
 
         response = self.client.get(reverse('inbox'))
-        self.assertQuerysetEqual(
-            response.context['convos'],
+        self.assertEquals(
+            response.context['names'],
             [],
-            msg=f"Expected no conversation to be returned when logged in but none exist, but failed."
+            msg=f"Expected no conversations to be returned when logged in but none exist, but failed."
         )
 
     def test_inbox_no_display_not_logged_in(self):
@@ -258,9 +282,8 @@ class InboxViewTests(TestCase):
         _ = create_convo("mscott-dschrute", [profile1, profile2])
 
         response = self.client.get(reverse('inbox'))
-        self.assertQuerysetEqual(
-            response.context['convos'],
-            [],
+        self.assertIsNone(
+            response.context,
             msg=f"Expected no conversation to be returned when not logged in, but failed."
         )
 
@@ -273,13 +296,13 @@ class InboxViewTests(TestCase):
         self.client.force_login(profile1.user)
 
         response = self.client.get(reverse('inbox'))
-        self.assertQuerysetEqual(
-            response.context['convos'],
-            [convo],
+        self.assertEquals(
+            response.context['names'][0][0].name,
+            convo.name,
             msg=f"Expected a conversation with name {convo.name} to be returned when {profile1.user.username} is logged in, but failed."
         )
 
-    def test_inbox_one_convo_two_users(self):
+    def test_inbox_one_convo_two_users_other_logged_in(self):
         """Tests that a conversation between two users is shown when the other user is logged in."""
         profile1 = create_profile("mscott", "Michael", "Scott", True, 0)
         profile2 = create_profile("dschrute", "Dwight", "Schrute", False, 0)
@@ -288,9 +311,9 @@ class InboxViewTests(TestCase):
         self.client.force_login(profile2.user)
 
         response = self.client.get(reverse('inbox'))
-        self.assertQuerysetEqual(
-            response.context['convos'],
-            [convo],
+        self.assertEquals(
+            response.context['names'][0][0].name,
+            convo.name,
             msg=f"Expected a conversation with name {convo.name} to be returned when {profile2.user.username} is logged in, but failed."
         )
 
@@ -301,16 +324,16 @@ class InboxViewTests(TestCase):
         profile3 = create_profile("jhalpert", "Jim", "Halpert", True, 100)
         profile4 = create_profile("pbeasly", "Pam", "Beasly", True, 200)
 
-        convo1 = create_convo("mscott-dschrute", [profile1, profile2])
-        convo2 = create_convo("mscott-jhalpert", [profile1, profile3])
-        convo3 = create_convo("mscott-pbeasly", [profile1, profile4])
+        _ = create_convo("mscott-dschrute", [profile1, profile2])
+        _ = create_convo("mscott-jhalpert", [profile1, profile3])
+        _ = create_convo("mscott-pbeasly", [profile1, profile4])
 
         self.client.force_login(profile1.user)
 
         response = self.client.get(reverse('inbox'))
-        self.assertQuerysetEqual(
-            response.context['convos'],
-            [convo3, convo2, convo1],
+        self.assertEquals(
+            len(response.context['names']),
+            3,
             msg=f"Expected three conversations to be returned when {profile1.user.username} is logged in, but failed."
         )
 

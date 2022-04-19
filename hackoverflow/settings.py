@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.sites',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
@@ -59,6 +58,17 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+TINYMCE_DEFAULT_CONFIG = {
+    'cleanup_on_startup': True,
+    'selector': "textarea",
+    'plugins': "emoticons textcolor",
+    'toolbar': "emoticons",
+    'toolbar_location': "bottom",
+    'menubar': False,
+    'height': 200,
+    'width': 600,
+}
 
 ROOT_URLCONF = 'hackoverflow.urls'
 

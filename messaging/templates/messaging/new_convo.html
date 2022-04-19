@@ -19,8 +19,14 @@
 <div>
 	<form method="POST" action="">
 		{% csrf_token %} {{ form.media }} {{ form.as_p }}
+
 		<input type="submit" value="Send" />
 	</form>
 </div>
 
-{% endblock %}
+{% for message in messages %}
+<div class="alert alert-success">
+	<a class="close" href="#" data-dismiss="alert">×</a>
+	{{ message }}
+</div>
+{% endfor %} {% endblock %}

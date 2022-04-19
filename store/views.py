@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 
 from messaging.models import Profile
@@ -7,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 def index(request):
+    """View for the main page of products."""
     products = Product.objects.all()
 
     context = {'products': products}
@@ -14,6 +16,7 @@ def index(request):
 
 @login_required(login_url='login')
 def buy(request, pk):
+    """View for an individual product."""
     product = Product.objects.get(id=pk)
     recent_purchasers = Purchase.objects.filter(product = product).values('buyer').order_by('-timestamp')[:3]
     user_names = []
@@ -27,6 +30,7 @@ def buy(request, pk):
 
 @login_required(login_url='login')
 def buy_page(request, pk):
+    """View that actually lets a user buy a product."""
     product = Product.objects.get(id=pk)
     buyer = Profile.objects.get(user = request.user)
     recent_purchasers = Purchase.objects.filter(product = product).values('buyer').order_by('-timestamp')[:3]
@@ -46,7 +50,7 @@ def buy_page(request, pk):
                 product = product
             )
         
-            Profile.objects.filter(user = request.user).update(wallet = buyer.wallet - product.point_cost)
+            Profile.objects.filter(user=request.user).update(wallet=buyer.wallet - product.point_cost)
             return redirect('index')
         else:
             messages.error(request,'Not enough points')

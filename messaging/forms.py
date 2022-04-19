@@ -29,7 +29,13 @@ class ProfileCreateForm(UserCreationForm):
         user.email = self.cleaned_data['email']
 
         # Create "Profile" data
-        profile = Profile(user=user, bio=self.cleaned_data['bio'], image=self.cleaned_data['image'], displayPoints=self.cleaned_data['make_my_points_public'], displayPurchases=self.cleaned_data['make_my_purchases_public'])
+        profile = Profile(
+            user=user,
+            bio=self.cleaned_data['bio'],
+            image=self.cleaned_data['image'],
+            displayPoints=self.cleaned_data['make_my_points_public'],
+            displayPurchases=self.cleaned_data['make_my_purchases_public']
+        )
         
         if commit:
             user.save()
@@ -57,7 +63,7 @@ class ProfileUpdateForm(ModelForm):
 class MessageSend(ModelForm):
     """Sends a message to other users."""
     send_to = forms.CharField(required=True)
-    body = forms.CharField(widget=forms.Textarea(attrs={'id': 'body'}), required=True)
+    body = forms.CharField(widget=TinyMCE(attrs={}))
 
     class Meta:
         model = Message
