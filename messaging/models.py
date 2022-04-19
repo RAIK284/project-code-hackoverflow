@@ -16,7 +16,6 @@ def get_image_path(profile, filename):
 class Profile(models.Model):
     """Model controlling a user's profile data."""
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    phoneNumber = PhoneNumberField(blank=True)
     
     def __str__(self):
         return self.user.name
