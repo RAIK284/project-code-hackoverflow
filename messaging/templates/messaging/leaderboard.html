@@ -3,9 +3,9 @@
 <h1>Leaderboard</h1>
 <hr />
 
-{% for username, points in user_data %}
+{% for user, points in user_data %}
 <div>
-	<a href="{% url 'profile' id%}">@{{username}}</a>:
+	<a href="{% url 'profile' user.id %}">@{{ user.username }}</a>:
 	<a>{{ points }}</a>
 	<hr />
 </div>

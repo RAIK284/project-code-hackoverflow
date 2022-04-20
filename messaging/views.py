@@ -243,16 +243,16 @@ def leaderboard(request):
     user_points = Profile.objects.filter(displayPoints=True).values('points', 'user').order_by('-points')[:NUM_USERS_TO_SHOW]
 
     # Prepare data for each user on the leaderboard
-    user_names = []
+    users = []
     points = []
     for obj in user_points:
         user = obj['user']
         point = obj['points']
         points.append(point)
-        user_names.append(User.objects.get(id=user).get_full_name())
+        users.append(User.objects.get(id=user))
 
-    user_data = list(zip(user_names, points))
-    context = {'users': user_data}
+    user_data = list(zip(users, points))
+    context = {'user_data': user_data}
     return render(request, 'messaging/leaderboard.html', context)
 
 @login_required(login_url='login')
