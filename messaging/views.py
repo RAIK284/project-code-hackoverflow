@@ -36,20 +36,20 @@ def sendPoints(newMessage: Message, members: list[User], convo: Conversation, se
     :param convo - the Conversation
     :param sender - the user sending the message
     """
-    # print('Members:' + str(members))
     totalPoints = newMessage.points * (len(members) - 1)
     pointsToSend = 0
     if sender.profile.points < totalPoints:
+        # Will send 0 points
         pointsToSend = sender.profile.points
     else:
         pointsToSend = totalPoints
-    # print("To send:" + str(pointsToSend))
+
     Profile.objects.filter(user=sender).update(points = (sender.profile.points - pointsToSend))
 
     for member in convo.userGroup.members.all():
         if member.username != sender.username:
-            Profile.objects.filter(user=member).update(wallet = (int)(member.profile.wallet +  (pointsToSend / (len(members) - 1))))
-            Profile.objects.filter(user=member).update(allTimePoints = (int)(member.profile.allTimePoints +  (pointsToSend / (len(members) - 1))))
+            Profile.objects.filter(user=member).update(wallet = (int)(member.profile.wallet +  (pointsToSend / (len(members) - 1))),\
+                                                       allTimePoints = (int)(member.profile.allTimePoints +  (pointsToSend / (len(members) - 1))))
     
 def login_page(request):
     """View for the site's login page."""
@@ -117,8 +117,8 @@ def inbox(request):
     # Prep the data to display
     names = []
     for convo in convos:
-        # Preview the first message
-        first_message = Message.objects.filter(conversation=convo).first()
+        # Preview the most recent message
+        first_message = Message.objects.filter(conversation=convo).last()
 
         # Get the users' full names
         username_list = convo.name.split('-')
@@ -240,14 +240,14 @@ def leaderboard(request):
     """View for the global leaderboard."""
     # Get only the top users that have their points public
     NUM_USERS_TO_SHOW = 10
-    user_points = Profile.objects.filter(displayPoints=True).values('points', 'user').order_by('-points')[:NUM_USERS_TO_SHOW]
+    user_points = Profile.objects.filter(displayPoints=True).values('allTimePoints', 'user').order_by('-allTimePoints')[:NUM_USERS_TO_SHOW]
 
     # Prepare data for each user on the leaderboard
     users = []
     points = []
     for obj in user_points:
         user = obj['user']
-        point = obj['points']
+        point = obj['allTimePoints']
         points.append(point)
         users.append(User.objects.get(id=user))
 

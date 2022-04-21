@@ -4,10 +4,10 @@
 	.panel {
 		background-color:#2a9d8f;
 		border-radius:5%;
+		height: 100%;
 	}
 
 	.side-panel {
-		height: 100%;
 		margin-top: 15%;
 	}
 </style>
@@ -16,14 +16,13 @@
 	<div class="container-fluid row">
 		<div class="col col ml-5 side-panel d-inline text-center shadow rounded-3 panel">
 			<!-- Only show purchases if toggled on -->
-			{% if profile.displayPurchases or current_user.username == user.username%}
+			{% if purchases.count > 0 and profile.displayPurchases or purchases.count > 0 and current_user.username == user.username %}
 			<div>
 				<h4 class="mt-4">PURCHASES</h4>
 
 				<!-- Make sure the purchases don't error out -->
-				{% if purchases.count > 0 %} {% for purchase in purchases %}
+				{% for purchase in purchases %}
 				<div class="py-3 overflow-auto">
-					<h5>{{ purchase.product.name }}</h5>
 					<img
 						class="z-depth-2 img-fluid"
 						alt="Image of purchase: {{ purchase.product.name }}"
@@ -32,7 +31,6 @@
 					/>
 				</div>
 				{% endfor %}
-				{% endif %}
 			</div>
 			{% endif %}
 		</div>
@@ -58,7 +56,7 @@
 
 			<!-- Make sure a user can only edit the profile that's theirs -->
 			{% if current_user.username == user.username %}
-			<div id="edit-info">
+			<div>
 				<a
 					class="mb-2 d-inline-block btn btn-light"
 					href="{% url 'updateProfile' user.id %}"
@@ -90,15 +88,18 @@
 		
 		<div class="col col mr-5 align-middle side-panel points-panel d-inline text-center shadow rounded-3 panel">
 			<!-- Only show points if toggled on -->
-			{% if profile.displayPoints %}
+			{% if profile.displayPoints or current_user.username == user.username %}
 				<h4 class="mt-4">POINTS</h4>
-				<h4>{{ profile.points }}</h4>
+				<h4 class="mb-4">{{ profile.allTimePoints }}</h4>
 			{% endif %}
 
 			<!-- Only show current spendable points if the user is on their own page -->
 			{% if current_user.username == user.username %}
-				<h4 style="margin-top:20%;">WALLET</h4>
-				<h4 class="mb-4">{{profile.wallet}}</h4>
+				<h4>WALLET</h4>
+				<h4 class="mb-4">{{ profile.wallet }}</h4>
+
+				<h4>SENDABLE</h4>
+				<h4 class="mb-4">{{ profile.points }}</h4>
 			{% endif %}
 		</div>
 	</div>

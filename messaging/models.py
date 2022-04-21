@@ -23,7 +23,7 @@ class Profile(models.Model):
     image = models.ImageField(upload_to=get_image_path, null=True)
     wallet = models.IntegerField(default=0)
     displayPoints = models.BooleanField(default=False)
-    points = models.IntegerField(default=0)
+    points = models.IntegerField(default=0) # Represents points to send to users, specifically
     allTimePoints = models.IntegerField(default=0)
     displayPurchases = models.BooleanField(default=False)
 
