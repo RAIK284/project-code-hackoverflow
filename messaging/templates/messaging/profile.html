@@ -1,47 +1,78 @@
 {% extends 'main.html' %} {% block content %}
 
 <style>
-	.main-profile-info {
-		text-align: center;
+	.panel {
+		background-color:#2a9d8f;
+		border-radius:5%;
+	}
+
+	.side-panel {
+		height: 100%;
+		margin-top: 15%;
 	}
 </style>
 
-<body>
-	<center>
-		<div class="profile-page">
-			<div class="main-profile-info">
-				<!-- Only show a profile image if one is set -->
-				{% if profile.image and profile.image.url %}
-				<img
-					class="rounded-circle z-depth-2"
-					alt="{{ user.get_full_name }}'s profile picture"
-					src="{{ profile.image.url }}"
-					style="max-height: 200px"
-				/>
+<body style="background-color:#f4a261;">
+	<div class="container-fluid row">
+		<div class="col col ml-5 side-panel d-inline text-center shadow rounded-3 panel">
+			<!-- Only show purchases if toggled on -->
+			{% if profile.displayPurchases or current_user.username == user.username%}
+			<div>
+				<h4 class="mt-4">PURCHASES</h4>
+
+				<!-- Make sure the purchases don't error out -->
+				{% if purchases.count > 0 %} {% for purchase in purchases %}
+				<div class="py-3 overflow-auto">
+					<h5>{{ purchase.product.name }}</h5>
+					<img
+						class="z-depth-2 img-fluid"
+						alt="Image of purchase: {{ purchase.product.name }}"
+						src="{{ purchase.product.image.url }}"
+						style="max-height: 100px"
+					/>
+				</div>
+				{% endfor %}
 				{% endif %}
+			</div>
+			{% endif %}
+		</div>
 
-				<h1>@{{ user.username }}</h1>
-				<h3>{{ user.get_full_name }}</h3>
+		<!-- Empty div to pad out the grid -->
+		<div class="col col"></div>
 
-				<div class="bio">{{ profile.bio }}</div>
+		<div class="col col-4 p-5 text-center mt-5 mx-auto shadow rounded-3 border border-dark panel">
+			<!-- Only show a profile image if one is set -->
+			{% if profile.image and profile.image.url %}
+			<img
+				class="rounded-circle z-depth-2 img-fluid"
+				alt="{{ user.get_full_name }}'s profile picture"
+				src="{{ profile.image.url }}"
+				style="max-height: 200px;"
+			/>
+			{% endif %}
 
-				<!-- Make sure a user can only edit the profile that's theirs -->
-				{% if current_user.username == user.username %}
+			<h3>@{{ user.username }}</h3>
+			<h1>{{ user.get_full_name }}</h1>
+
+			<div class="bio mb-3">{{ profile.bio }}</div>
+
+			<!-- Make sure a user can only edit the profile that's theirs -->
+			{% if current_user.username == user.username %}
+			<div id="edit-info">
 				<a
-					class="btn btn-primary"
+					class="mb-2 d-inline-block btn btn-light"
 					href="{% url 'updateProfile' user.id %}"
 					role="button"
 				>
 					Edit Profile
 				</a>
 				<a
-					class="btn btn-primary"
+					class="mb-2 d-inline-block btn btn-light"
 					href="{% url 'changePassword' user.id %}"
 					role="button"
 				>
 					Change Password
 				</a>
-				{% endif %}
 
 				<!-- Show an error if needed for updating profile -->
 				{% for message in messages %}
@@ -51,42 +82,26 @@
 				</div>
 				{% endfor %}
 			</div>
-			
-			<div class="points-info">
-				<!-- Only show points if toggled on -->
-				{% if profile.displayPoints %}
-					<h4>Points: {{ profile.points }}</h4>
-				{% endif %}
-
-				<!-- Only show current spendable points if the user is on their own page -->
-				{% if current_user.username == user.username %}
-					<h4>Wallet: {{profile.wallet}}</h4>
-				{% endif %}
-			</div>
-
-			<div class="purchases-info">
-				<!-- Only show purchases if toggled on -->
-				{% if profile.displayPurchases or current_user.username == user.username%}
-				<div>
-					<!-- Make sure the purchases don't error out -->
-					{% if purchases.count > 0 %} {% for purchase in purchases %}
-					<div>
-						<h5>{{ purchase.product.name }}</h5>
-						<img
-							class="z-depth-2"
-							alt="Image of purchase: {{ purchase.product.name }}"
-							src="{{ purchase.product.image.url }}"
-							style="max-height: 300px"
-						/>
-					</div>
-					{% endfor %} {% else %}
-					<h5>Go buy something!</h5>
-					{% endif %}
-				</div>
-				{% endif %}
-			</div>
+			{% endif %}
 		</div>
-	</center>
+
+		<!-- Empty div to pad out the grid -->
+		<div class="col col"></div>
+		
+		<div class="col col mr-5 align-middle side-panel points-panel d-inline text-center shadow rounded-3 panel">
+			<!-- Only show points if toggled on -->
+			{% if profile.displayPoints %}
+				<h4 class="mt-4">POINTS</h4>
+				<h4>{{ profile.points }}</h4>
+			{% endif %}
+
+			<!-- Only show current spendable points if the user is on their own page -->
+			{% if current_user.username == user.username %}
+				<h4 style="margin-top:20%;">WALLET</h4>
+				<h4 class="mb-4">{{profile.wallet}}</h4>
+			{% endif %}
+		</div>
+	</div>
 </body>
 
 {% endblock %}

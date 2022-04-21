@@ -318,7 +318,7 @@ def create_convo(request):
 
             return redirect('conversation', pk=convo.id)
         except ObjectDoesNotExist as e:
-            messages.error(request, e)
+            pass # messages.error(request, e)
 
 
     context = {'form': form}
