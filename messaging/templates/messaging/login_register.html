@@ -1,27 +1,47 @@
 {% extends 'main.html' %} {% block content %}
 
 {% if page == 'login' %}
-  <div>
-    <form method="POST" action="">
+  <div class="container-fluid text-center" style="margin-top:8rem;">
+    {% load static %}
+    <div>
+      <h1 class="d-inline mr-3" style="font-weight:bolder;">PAWSITIVITY</h1>
+      <img 
+        src="{% static 'messaging/images/paw.png' %}" 
+        class="d-inline"
+        style="max-height:60px;"
+      />
+    </div>
+    <form method="POST" action="" style="margin-top:3rem;">
       {% csrf_token %}
 
-      <label>Username</label>
-      <input type="text" name="username" placeholder="Enter Username..." />
+      <div class="mb-5">
+        <div class="mb-2">
+          <label>Username</label>
+          <input type="text" name="username" placeholder="Enter Username..." />
+        </div>
 
-      <label>Password</label>
-      <input type="password" name="password" placeholder="Enter Password..." />
+        <div class="mb-2">
+          <label>Password</label>
+          <input type="password" name="password" placeholder="Enter Password..." />
+        </div>
 
-      <input type="submit" value="Login" />
+        <div>
+          <input class="btn btn-light border border-dark" type="submit" value="Login" />
+        </div>
+      </div>
     </form>
 
     <!-- TODO: need different page/view for forgotten password -->
-    <a href="#">Forgot Password?</a>
+    <div>
+      <a class="btn btn-secondary mb-2" href="#">Forgot Password?</a>
+    </div>
 
-    <p>Haven't signed up yet?</p>
-    <a href="{% url 'register' %}">Sign Up</a>
+    <div>
+      <a class="btn btn-secondary" href="{% url 'register' %}">Sign Up</a>
+    </div>
   </div>
 {% elif page == 'updateProfile' %}
-  <div>
+  <div class="container-fluid mt-5 text-center">
     <form method="POST" action="" enctype='multipart/form-data'>
       {% csrf_token %} 
       
@@ -31,28 +51,32 @@
         {{ profile_form.as_p }}
       </table>
 
-      <input type="submit" value="Update" />
+      <input class="btn btn-light border border-dark" type="submit" value="Update" />
     </form>
   </div>
 {% elif page == 'changePassword' %}
-  <div>
+  <div class="container-fluid mt-5 text-center">
     <form method="POST" action="">
       {% csrf_token %}
 
       {{ form.as_p }}
-      <input type="submit" value="Change Password" />
+      <input class="btn btn-light border border-dark" type="submit" value="Change Password" />
     </form>
   </div>
 {% else %}
-  <div>
-    <form method="POST" action="" enctype='multipart/form-data'>
+  <!-- Create User/Profile -->
+  <div class="container-fluid mt-5 text-center">
+    <form class="mb-3" method="POST" action="" enctype='multipart/form-data'>
       {% csrf_token %} 
       
       {{ form.as_p }}
-      <input type="submit" value="Register" />
+      <input class="btn btn-light border border-dark" type="submit" value="Register" />
     </form>
-    <p>Already signed up?</p>
-    <a href="{% url 'login' %}">Login</a>
+
+    <div>
+      <p style="font-style:italic;">Already signed up?</p>
+      <a class="btn btn-secondary" href="{% url 'login' %}">Login</a>
+    </div>
   </div>
 {% endif %}
 
