@@ -1,12 +1,130 @@
+
 {% extends 'main.html' %} {% block content %}
 
-<h1>Leaderboard</h1>
-<hr />
+<style>
+    my-style-row {
+        background-color: #2A9D8F;
+        height: 600px;
+    }
+</style>
 
-{% for user, points in user_data %}
-<div>
-	<a href="{% url 'profile' user.id %}">@{{ user.username }}</a>:
-	<a>{{ points }}</a>
-	<hr />
-</div>
-{% endfor %} {% endblock %}
+<div class="container">
+    <div class="row">
+      <div class="col">
+      </div>
+      <div class="col-7">
+        <center style = "font-size: 50px; background-color: #F4A261">LeaderBoard</center>
+      </div>
+      <div class="col">
+      </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-8">
+            <center style = "font-size: 30px">Username</center>
+        </div>
+        <div class="col-4">
+            <p1 style = "font-size: 30px">Score</p1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-8">
+            <center style = "font-size: 20px; background-color: #FFFFFF">User 1</center>
+        </div>
+        <div class="col-4">
+            <p1 style = "font-size: 20px; background-color: #FFFFFF">10,000</p1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-8">
+            <center style = "font-size: 20px; background-color: #FFFFFF">User 2</center>
+        </div>
+        <div class="col-4">
+            <p1 style = "font-size: 20px; background-color: #FFFFFF">9,700</p1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-8">
+            <center style = "font-size: 20px; background-color: #FFFFFF">User 3</center>
+        </div>
+        <div class="col-4">
+            <p1 style = "font-size: 20px; background-color: #FFFFFF">9,100</p1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-8">
+            <center style = "font-size: 20px; background-color: #D3CFCF">User 4</center>
+        </div>
+        <div class="col-4">
+            <p1 style = "font-size: 20px; background-color: #D3CFCF">8,600</p1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-8">
+            <center style = "font-size: 20px; background-color: #D3CFCF">User 5</center>
+        </div>
+        <div class="col-4">
+            <p1 style = "font-size: 20px; background-color: #D3CFCF">8,400</p1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-8">
+            <center style = "font-size: 20px; background-color: #D3CFCF">User 6</center>
+        </div>
+        <div class="col-4">
+            <p1 style = "font-size: 20px; background-color: #D3CFCF">7,701</p1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-8">
+            <center style = "font-size: 20px; background-color: #D3CFCF">User 7</center>
+        </div>
+        <div class="col-4">
+            <p1 style = "font-size: 20px; background-color: #D3CFCF">7,700</p1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-8">
+            <center style = "font-size: 20px; background-color: #D3CFCF">User 8</center>
+        </div>
+        <div class="col-4">
+            <p1 style = "font-size: 20px; background-color: #D3CFCF">7,300</p1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-8">
+            <center style = "font-size: 20px; background-color: #D3CFCF">User 9</center>
+        </div>
+        <div class="col-4">
+            <p1 style = "font-size: 20px; background-color: #D3CFCF">6,800</p1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-8">
+            <center style = "font-size: 20px; background-color: #D3CFCF">User 10</center>
+        </div>
+        <div class="col-4">
+            <p1 style = "font-size: 20px; background-color: #D3CFCF">6,000</p1>
+        </div>
+    </div>
+  </div>
+
+{% for user, points in users %}
+    <div>
+        <a>{{ user }}</a>
+        <a>{{ points }}</a>
+        <hr />
+    </div>
+{% endfor %}
+
+{% endblock %}
