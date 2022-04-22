@@ -17,35 +17,38 @@
 	</script>
 </head>
 
-<div class="conversation">
-	<h3>{{ convo.name }}</h3>
-
-	<div>
-		Members:
-		<br />
-		{% for name in members %} {{ name }}
-		<br />
-		{% endfor %}
+<div class="container-fluid" style="font-size:25px;">
+	<div class="mt-3 mb-3">
+		<h1>Members:</h1>
+		<h2 class="ml-3">
+			{% for name in members %}
+			- {{ name }}
+			<br />
+			{% endfor %}
+		</h2>
 	</div>
-
-	<hr />
 
 	{% for message in messages %}
-	<div class="p-3 mb-2 bg-primary text-white">
+	<div class="p-3 mb-2 rounded rounded-3"
 		{% if message.sender.first_name == first_name %}
-		<p class="text-right">You: {{ message.body|emoji_replace|emoji_replace}}</p>
-		<p class="text-right">Points: {{ message.points }}</p>
+		style="background-color:#2a9d8f; color:white;"
 		{% else %}
-		<p>
-			<a href="{% url 'profile' message.sender.id%}">
-				@{{ message.sender.username }}
-			</a>
-			: {{ message.body|emoji_replace}}
-		</p>
-		<p>Points: {{ message.points }}</p>
+		style="background-color:#eaeaea; color:black;"
+		{% endif %}
+	>
+		{% if message.sender.first_name == first_name %}
+			<p class="text-right">You: {{ message.body|emoji_replace|emoji_replace }}</p>
+			<p class="text-right">Points: {{ message.points }}</p>
+		{% else %}
+			<p>
+				<a href="{% url 'profile' message.sender.id %}" style="font-style:italic;">
+					@{{ message.sender.username }}
+				</a>
+				: {{ message.body|emoji_replace }}
+			</p>
+			<p>Points: {{ message.points }}</p>
 		{% endif %}
 	</div>
-
 	{% endfor %}
 
 	<div>
@@ -61,7 +64,7 @@
 					placeholder="Write your message here..."
 				/>
 				{% endcomment %}
-				<input type="submit" value="Send" />
+				<input class="btn btn-success my-3" type="submit" value="Send" />
 			</form>
 		</div>
 		{% endif %}

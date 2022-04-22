@@ -16,11 +16,11 @@
 		});
 	</script>
 </head>
-<div>
-	<form method="POST" action="">
+<div class="container-fluid mt-3">
+	<form method="POST" action="" style="font-weight:bolder;">
 		{% csrf_token %} {{ form.media }} {{ form.as_p }}
 
-		<input type="submit" value="Send" />
+		<input class="btn btn-success mt-2" type="submit" value="Send" />
 	</form>
 </div>
 

@@ -111,7 +111,7 @@ def register_user_page(request):
 @login_required(login_url='login')
 def inbox(request):
     """View for the user's inbox."""
-    convos = Conversation.objects.filter(userGroup__members__in=[request.user.id])
+    convos = Conversation.objects.filter(userGroup__members__in=[request.user.id]).reverse()
     
     # Prep the data to display
     names = []

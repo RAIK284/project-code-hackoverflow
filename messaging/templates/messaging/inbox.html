@@ -1,31 +1,37 @@
 {% extends 'main.html' %} {% block content %} {% load emoji_tags %}
 
-<div class="inbox-container">
+<div class="inbox-container container-fluid mt-2">
 	<h1>Inbox</h1>
 	<div>
-		<ul class="list-group">
-			{% for convo, name, first in names %}
-			<li class="list-group-item">
-				<a
-					class="btn btn-primary text-left"
-					href="{% url 'conversation' convo.id %}"
-					role="button"
-				>
-					{{ name }}
-					<br />
-					&emsp;{%if first.sender.get_full_name == user_name %}You:{% else %}
-					{{first.sender.first_name}}:
-					<br />
-					{% endif %} {{first|emoji_replace_unicode}}
-				</a>
-			</li>
-			{% endfor %}
-			<p>
-				<a class="btn btn-success" href="{% url 'createConvo' %}" role="button">
-					New Message
-				</a>
-			</p>
-		</ul>
+		{% for convo, name, first in names %}
+		<div class="mb-3">
+			<a
+				class="btn text-left rounded-5"
+				href="{% url 'conversation' convo.id %}"
+				role="button"
+				style="background-color:#2a9d8f; color:white;"
+			>
+				{{ name }}
+				<br />
+				<br />
+
+				<!-- Show the name of the last person sent -->
+				&emsp;{% if first.sender.get_full_name == user_name %}You:{% else %}
+				{{ first.sender.first_name }}:
+				
+				{% endif %} {{ first|emoji_replace_unicode }}
+
+				<br />
+				<br />
+				{{ first.created }}
+			</a>
+		</div>
+		{% endfor %}
+		<p>
+			<a class="btn btn-success" href="{% url 'createConvo' %}" role="button">
+				New Message
+			</a>
+		</p>
 	</div>
 </div>
 
