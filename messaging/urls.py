@@ -12,7 +12,6 @@ urlpatterns = [
 
     path('leaderboard/', views.leaderboard, name='leaderboard'),
 
-    path('sendMessage', views.send_message, name='send'),
     path('conversation/<str:pk>', views.conversation, name='conversation'),
     path('createConvo', views.create_convo, name='createConvo'),
 

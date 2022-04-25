@@ -13,9 +13,24 @@ def get_image_path(profile, filename):
     """
     return os.path.join('profile_images', str(profile.user.id), filename)
 
+def set_user_points(num_points):
+    """
+    Function to be run once ever 24 hours that resets points for all users to 100
+
+    :param num_points - number of points to give each user
+    """
+    allProfiles = Profile.objects.all()
+    for profile in allProfiles:
+        profile.points = num_points
+        profile.save()
+    
+
 class Profile(models.Model):
     """Model controlling a user's profile data."""
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    
+    def __str__(self):
+        return self.user.name
     bio = models.TextField(max_length=200, null=True, blank=True)
     image = models.ImageField(upload_to=get_image_path, null=True)
     wallet = models.IntegerField(default=0)

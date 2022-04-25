@@ -10,7 +10,7 @@ from functools import reduce
 import operator
 
 from .forms import CustomUserChangeForm, ProfileCreateForm, ProfileUpdateForm, MessageSend
-from .models import Profile, Conversation, Message, UserGroup
+from .models import Profile, Conversation, Message, UserGroup, set_user_points
 from store.models import Purchase
 
 def getPoints(body: str) -> int:
@@ -134,11 +134,6 @@ def inbox(request):
     
     context = {'names': names, 'user_name': user_name}
     return render(request, 'messaging/inbox.html', context)
-
-def send_message(request):
-    """View for the user to send a message."""
-    context = {}
-    return render(request, 'messaging/send_message.html', context)
 
 def conversation(request, pk):
     """View for an individual conversation."""
