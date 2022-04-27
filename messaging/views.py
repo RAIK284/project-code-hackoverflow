@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.core.exceptions import ObjectDoesNotExist
@@ -111,6 +112,19 @@ def register_user_page(request):
 @login_required(login_url='login')
 def inbox(request):
     """View for the user's inbox."""
+
+    def setPoints(num_points, profile):
+        
+        profile.points = num_points
+        profile.save()
+
+    profile = request.user.profile
+    
+
+    if profile.lastInboxVisit != datetime.today:
+        profile.lastInboxVisit = datetime.now()
+        setPoints(100, profile)
+
     convos = Conversation.objects.filter(userGroup__members__in=[request.user.id]).reverse()
     
     # Prep the data to display
