@@ -2,20 +2,32 @@
 
 {% block content %}
 
-<h1>Store</h1>
-<hr>
+<style>
+    .item{
+      background-color: white;
+      border-radius: 20px;
+    }
+  </style>
 
+<h1 align="center">Store</h1>
+<div class="container">
+<div class = "row row-cols-3">
 {% for product in products %}
-    <div>
-        <h2>{{ product.name }}</h2>
-        <p>Cost: {{ product.point_cost }} points</p>
-        <p>{{ product.amount_sold }} sold</p>
-        <img src="{{ product.image.url }}" style="max-height:300px">
-        <div>
-            <a href="{% url 'buy' product.id %}">Checkout</a>
-        </div>
-        <hr>
+    <div class="col item shadow m-3 text-center py-2">
+        <a href="{% url 'buy' product.id %}" style="color:#2a9d8f">{{ product.name }}</a>
+        <br>
+        <img  
+        class="z-depth-2 img-fluid"
+        alt="Image of purchase: {{ purchase.product.name }}"
+        src="{{ product.image.url }}"
+        style="max-height: 100px"
+        align="center"
+    />
+        <p >Cost: {{ product.point_cost }} points</p>
+        <p >{{ product.amount_sold }} sold</p>
     </div>
 {% endfor %}
+</div>
+</div>
 
 {% endblock %}

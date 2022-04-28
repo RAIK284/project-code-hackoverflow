@@ -1,8 +1,17 @@
+
+
 {% extends 'main.html' %}
 
 {% block content %}
 
-<div>
+<style>
+  .item{
+    background-color: white;
+    border-radius: 20px;
+  }
+</style>
+
+<div class="container-fluid mt-2 item">
     <form method="POST" action="">
         {% csrf_token %} 
         
@@ -10,10 +19,9 @@
         <a href="{% url 'index' %}">Go back</a>
 
         <h1>{{ product.name }}</h1>
+        <img class = "img-fluid" src="{{ product.image.url }}" alt="image for product: {{ product.name }}" style="max-height:100px">
         <p>Cost: {{ product.point_cost }} points</p>
         <p>{{ product.amount_sold }} sold</p>
-
-        <img src="{{ product.image.url }}" alt="image for product: {{ product.name }}" style="max-height:100px">
         <a href="{% url 'buy_page' product.id %}", type = "submit", value = "Send">Buy</a>
         
         <p>Last three users purchasing item:</p>
