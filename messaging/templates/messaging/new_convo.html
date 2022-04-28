@@ -16,8 +16,24 @@
 		});
 	</script>
 </head>
+
+<style>
+	#tips {
+		border-radius: 15px;
+		background: #5bc0de;
+		padding: 15px;
+		font-size: 15px;
+		max-width: 600px;
+		margin: 10px;
+	}
+</style>
+<p id="tips">
+	Emojis worth 10 points: 🐶 | 🐱 | 🦋 | 🐢 | 🦄 | 🐰 | 🐾 | 🦩 | 🦈 | 🦖
+	<br />
+	Type ':' followed by any text to see a list of emojis
+</p>
 <div class="container-fluid mt-3">
-	<form method="POST" action="" style="font-weight:bolder;">
+	<form method="POST" action="" style="font-weight: bolder">
 		{% csrf_token %} {{ form.media }} {{ form.as_p }}
 
 		<input class="btn btn-success mt-2" type="submit" value="Send" />
