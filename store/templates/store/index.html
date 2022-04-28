@@ -7,12 +7,165 @@
       background-color: white;
       border-radius: 20px;
     }
+    .panel{
+      background-color:#2A9D8F;
+		  border-radius:5%;
+		  height: 100%;
+    }
   </style>
 
-<h1 align="center">Store</h1>
+
 <div class="container">
+  <div class="row">
+    <div class="col">
+    </div>
+    <div class="col-4 panel">
+      <center style = "font-size: 50px">Store</center>
+    </div>
+    <div class="col">
+    </div>
+  </div>
+
+  <center>
 <div class = "row row-cols-3">
-{% for product in products %}
+  <div class="col item shadow m-3 text-center py-2">
+    <a href="{% url 'buy' product.id %}" style="color:#2a9d8f">{{ product.name }}</a>
+    <br>
+    <img
+				class="rounded-circle z-depth-2 img-fluid"
+				alt="Puppy"
+				src="https://www.rd.com/wp-content/uploads/2018/02/30_Adorable-Puppy-Pictures-that-Will-Make-You-Melt_124167640_YamabikaY.jpg?fit=700,467"
+				style="max-height: 200px;"
+			/>
+
+      <p1>Cost: 1000 points</p1>
+      <br>
+      <p1>3 sold</p1>
+ </div>
+ <div class="col item shadow m-3 text-center py-2">
+  <a href="{% url 'buy' product.id %}" style="color:#2a9d8f">{{ product.name }}</a>
+  <br>
+    <img
+      class="rounded-circle z-depth-2 img-fluid"
+      alt="Puppy"
+      src="https://www.rd.com/wp-content/uploads/2018/02/30_Adorable-Puppy-Pictures-that-Will-Make-You-Melt_124167640_YamabikaY.jpg?fit=700,467"
+      style="max-height: 200px;"
+    />
+
+   <p1>Cost: 2000 points</p1>
+   <br>
+    <p1>18 sold</p1>
+ </div>
+ <div class="col item shadow m-3 text-center py-2">
+  <a href="{% url 'buy' product.id %}" style="color:#2a9d8f">{{ product.name }}</a>
+  <br>
+    <img
+      class="rounded-circle z-depth-2 img-fluid"
+      alt="Puppy"
+      src="https://www.rd.com/wp-content/uploads/2018/02/30_Adorable-Puppy-Pictures-that-Will-Make-You-Melt_124167640_YamabikaY.jpg?fit=700,467"
+      style="max-height: 200px;"
+    />
+
+    <p1>Cost: 500 points</p1>
+    <br>
+    <p1>9 sold</p1>
+ </div>
+</center>
+
+<center>
+ <div class = "row row-cols-3">
+  <div class="col item shadow m-3 text-center py-2">
+    <a href="{% url 'buy' product.id %}" style="color:#2a9d8f">{{ product.name }}</a>
+    <br>
+    <img
+				class="rounded-circle z-depth-2 img-fluid"
+				alt="Puppy"
+				src="https://www.rd.com/wp-content/uploads/2018/02/30_Adorable-Puppy-Pictures-that-Will-Make-You-Melt_124167640_YamabikaY.jpg?fit=700,467"
+				style="max-height: 200px;"
+			/>
+
+      <p1>Cost: 1000 points</p1>
+      <br>
+      <p1>3 sold</p1>
+ </div>
+ <div class="col item shadow m-3 text-center py-2">
+  <a href="{% url 'buy' product.id %}" style="color:#2a9d8f">{{ product.name }}</a>
+  <br>
+    <img
+      class="rounded-circle z-depth-2 img-fluid"
+      alt="Puppy"
+      src="https://www.rd.com/wp-content/uploads/2018/02/30_Adorable-Puppy-Pictures-that-Will-Make-You-Melt_124167640_YamabikaY.jpg?fit=700,467"
+      style="max-height: 200px;"
+    />
+
+   <p1>Cost: 2000 points</p1>
+   <br>
+    <p1>18 sold</p1>
+ </div>
+ <div class="col item shadow m-3 text-center py-2">
+  <a href="{% url 'buy' product.id %}" style="color:#2a9d8f">{{ product.name }}</a>
+  <br>
+    <img
+      class="rounded-circle z-depth-2 img-fluid"
+      alt="Puppy"
+      src="https://www.rd.com/wp-content/uploads/2018/02/30_Adorable-Puppy-Pictures-that-Will-Make-You-Melt_124167640_YamabikaY.jpg?fit=700,467"
+      style="max-height: 200px;"
+    />
+
+    <p1>Cost: 500 points</p1>
+    <br>
+    <p1>9 sold</p1>
+ </div>
+</center>
+
+ <div class = "row row-cols-3">
+  <div class="col item shadow m-3 text-center py-2 box">
+    <a href="{% url 'buy' product.id %}" style="color:#2a9d8f">{{ product.name }}</a>
+    <br>
+    <img
+				class="rounded-circle z-depth-2 img-fluid"
+				alt="Puppy"
+				src="https://www.rd.com/wp-content/uploads/2018/02/30_Adorable-Puppy-Pictures-that-Will-Make-You-Melt_124167640_YamabikaY.jpg?fit=700,467"
+				style="max-height: 200px;"
+			/>
+
+      <p1>Cost: 1000 points</p1>
+      <br>
+      <p1>3 sold</p1>
+ </div>
+ <div class="col item shadow m-3 text-center py-2">
+  <a href="{% url 'buy' product.id %}" style="color:#2a9d8f">{{ product.name }}</a>
+  <br>
+    <img
+      class="rounded-circle z-depth-2 img-fluid"
+      alt="Puppy"
+      src="https://www.rd.com/wp-content/uploads/2018/02/30_Adorable-Puppy-Pictures-that-Will-Make-You-Melt_124167640_YamabikaY.jpg?fit=700,467"
+      style="max-height: 200px;"
+    />
+
+   <p1>Cost: 2000 points</p1>
+   <br>
+    <p1>18 sold</p1>
+ </div>
+ <div class="col item shadow m-3 text-center py-2">
+  <a href="{% url 'buy' product.id %}" style="color:#2a9d8f">{{ product.name }}</a>
+  <br>
+    <img
+      class="rounded-circle z-depth-2 img-fluid"
+      alt="Puppy"
+      src="https://www.rd.com/wp-content/uploads/2018/02/30_Adorable-Puppy-Pictures-that-Will-Make-You-Melt_124167640_YamabikaY.jpg?fit=700,467"
+      style="max-height: 200px;"
+    />
+
+    <p1>Cost: 500 points</p1>
+    <br>
+    <p1>9 sold</p1>
+ </div>
+</div>
+</div>
+
+ <!-- I just left this here because the link to the buy page wasnt working exactly for me but I know this format was working for Elizabeth-->
+<!-- {% for product in products %}
     <div class="col item shadow m-3 text-center py-2">
         <a href="{% url 'buy' product.id %}" style="color:#2a9d8f">{{ product.name }}</a>
         <br>
@@ -26,8 +179,7 @@
         <p >Cost: {{ product.point_cost }} points</p>
         <p >{{ product.amount_sold }} sold</p>
     </div>
-{% endfor %}
-</div>
-</div>
+{% endfor %} -->
+
 
 {% endblock %}
