@@ -1,83 +1,94 @@
 {% extends 'main.html' %} {% block content %}
 
+<!-- This template handles most form-based user adjustments -->
 {% if page == 'login' %}
-  <div class="container-fluid text-center" style="margin-top:8rem;">
-    {% load static %}
-    <div>
-      <h1 class="d-inline mr-3" style="font-weight:bolder;">PAWSITIVITY</h1>
-      <img 
-        src="{% static 'messaging/images/paw.png' %}" 
-        class="d-inline"
-        style="max-height:60px;"
-      />
-    </div>
-    <form method="POST" action="" style="margin-top:3rem;">
-      {% csrf_token %}
 
-      <div class="mb-5">
-        <div class="mb-2">
-          <label>Username</label>
-          <input type="text" name="username" placeholder="Enter Username..." />
-        </div>
+<div class="container-fluid text-center" style="margin-top:8rem;">
+  {% load static %}
 
-        <div class="mb-2">
-          <label>Password</label>
-          <input type="password" name="password" placeholder="Enter Password..." />
-        </div>
+  <!-- Render the landing page -->
+  <div>
+    <h1 class="d-inline mr-3" style="font-weight:bolder;">PAWSITIVITY</h1>
+    <img 
+      src="{% static 'messaging/images/paw.png' %}" 
+      class="d-inline"
+      style="max-height:60px;"
+    />
+  </div>
 
-        <div>
-          <input class="btn btn-light border border-dark" type="submit" value="Login" />
-        </div>
+  <form method="POST" action="" style="margin-top:3rem;">
+    {% csrf_token %}
+
+    <div class="mb-5">
+      <div class="mb-2">
+        <label>Username</label>
+        <input type="text" name="username" placeholder="Enter Username..." />
       </div>
-    </form>
 
-    <!-- TODO: need different page/view for forgotten password -->
-    <div>
-      <a class="btn btn-secondary mb-2" href="#">Forgot Password?</a>
-    </div>
+      <div class="mb-2">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Enter Password..." />
+      </div>
 
-    <div>
-      <a class="btn btn-secondary" href="{% url 'register' %}">Sign Up</a>
+      <div>
+        <input class="btn btn-light border border-dark" type="submit" value="Login" />
+      </div>
     </div>
+  </form>
+
+  <div>
+    <a class="btn btn-secondary mb-2" href="#">Forgot Password?</a>
   </div>
+
+  <div>
+    <a class="btn btn-secondary" href="{% url 'register' %}">Sign Up</a>
+  </div>
+</div>
+
 {% elif page == 'updateProfile' %}
-  <div class="container-fluid mt-5 text-center">
-    <form method="POST" action="" enctype='multipart/form-data'>
-      {% csrf_token %} 
-      
-      <!--Render all the necessary forms simultaneously-->
-      <table>
-        {{ user_form.as_p }}
-        {{ profile_form.as_p }}
-      </table>
 
-      <input class="btn btn-light border border-dark" type="submit" value="Update" />
-    </form>
-  </div>
+<div class="container-fluid mt-5 text-center">
+  <form method="POST" action="" enctype='multipart/form-data'>
+    {% csrf_token %} 
+    
+    <!-- Render all the necessary forms simultaneously - both a user change form and a profile change form needed -->
+    <table>
+      {{ user_form.as_p }}
+      {{ profile_form.as_p }}
+    </table>
+
+    <input class="btn btn-light border border-dark" type="submit" value="Update" />
+  </form>
+</div>
+
 {% elif page == 'changePassword' %}
-  <div class="container-fluid mt-5 text-center">
-    <form method="POST" action="">
-      {% csrf_token %}
 
-      {{ form.as_p }}
-      <input class="btn btn-light border border-dark" type="submit" value="Change Password" />
-    </form>
-  </div>
+<div class="container-fluid mt-5 text-center">
+  <form method="POST" action="">
+    {% csrf_token %}
+
+    {{ form.as_p }}
+    <input class="btn btn-light border border-dark" type="submit" value="Change Password" />
+  </form>
+</div>
+
 {% else %}
-  <!-- Create User/Profile -->
-  <div class="container-fluid mt-5 text-center">
-    <form class="mb-3" method="POST" action="" enctype='multipart/form-data'>
-      {% csrf_token %} 
-      
-      {{ form.as_p }}
-      <input class="btn btn-light border border-dark" type="submit" value="Register" />
-    </form>
 
-    <div>
-      <p style="font-style:italic;">Already signed up?</p>
-      <a class="btn btn-secondary" href="{% url 'login' %}">Login</a>
-    </div>
+<!-- Create User/Profile -->
+<div class="container-fluid mt-5 text-center">
+  <form class="mb-3" method="POST" action="" enctype='multipart/form-data'>
+    {% csrf_token %} 
+    
+    {{ form.as_p }}
+    <input class="btn btn-light border border-dark" type="submit" value="Register" />
+  </form>
+
+  <div>
+    <p style="font-style:italic;">Already signed up?</p>
+    <a class="btn btn-secondary" href="{% url 'login' %}">Login</a>
   </div>
+</div>
+
 {% endif %}
 
 {% endblock %}

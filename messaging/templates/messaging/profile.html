@@ -14,7 +14,7 @@
 
 <body>
 	<div class="container-fluid row">
-		<div class="col col ml-5 side-panel d-inline text-center shadow rounded-3 panel">
+		<div class="col col ml-5 side-panel d-inline text-center shadow panel">
 			<!-- Only show purchases if toggled on -->
 			{% if purchases.count > 0 and profile.displayPurchases or purchases.count > 0 and current_user.username == user.username %}
 			<div>
@@ -27,7 +27,7 @@
 						class="z-depth-2 img-fluid"
 						alt="Image of purchase: {{ purchase.product.name }}"
 						src="{{ purchase.product.image.url }}"
-						style="max-height: 100px"
+						style="max-height: 100px; max-width: 100px;"
 					/>
 				</div>
 				{% endfor %}
@@ -45,7 +45,7 @@
 				class="rounded-circle z-depth-2 img-fluid"
 				alt="{{ user.get_full_name }}'s profile picture"
 				src="{{ profile.image.url }}"
-				style="max-height: 200px;"
+				style="max-height: 200px; max-width: 200px;"
 			/>
 			{% endif %}
 

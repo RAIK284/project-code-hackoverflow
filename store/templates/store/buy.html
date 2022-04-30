@@ -1,9 +1,4 @@
-
-
-{% extends 'main.html' %}
-
-{% block content %}
-
+{% extends 'main.html' %} {% block content %}
 <style>
   .item{
     background-color: white;
@@ -11,33 +6,34 @@
   }
 </style>
 
+<!-- Render a single item -->
 <div class="container-fluid mt-2 item">
-    <form method="POST" action="">
-        {% csrf_token %} 
-        
-        {{ form.as_p }}
-        <a href="{% url 'index' %}">Go back</a>
+  <form method="POST" action="">
+    {% csrf_token %} 
+    
+    {{ form.as_p }}
+    <a href="{% url 'index' %}">Go back</a>
 
-        <h1>{{ product.name }}</h1>
-        <img class = "img-fluid" src="{{ product.image.url }}" alt="image for product: {{ product.name }}" style="max-height:100px">
-        <p>Cost: {{ product.point_cost }} points</p>
-        <p>{{ product.amount_sold }} sold</p>
-        <a href="{% url 'buy_page' product.id %}", type = "submit", value = "Send">Buy</a>
-        
-        <p>Last three users purchasing item:</p>
-        {% for user in recent_purchasers %}
-        <p>{{ user }}</p>
-        {% endfor %}
-      </form>
+    <!-- Product info -->
+    <h1>{{ product.name }}</h1>
+    <img class = "img-fluid" src="{{ product.image.url }}" alt="image for product: {{ product.name }}" style="max-height:100px">
+    <p>Cost: {{ product.point_cost }} points</p>
+    <p>{{ product.amount_sold }} sold</p>
+    <a href="{% url 'buy_page' product.id %}", type="submit", value="Send">Buy</a>
+    
+    <p>Last three users purchasing item:</p>
+    {% for user in recent_purchasers %}
+      <p>{{ user }}</p>
+    {% endfor %}
+  </form>
 
-
-      {% for message in messages %}
-      <div class="alert alert-success">
-        <a class="close" href="#" data-dismiss="alert">×</a>
-           {{ message }}
-      </div>
-      {% endfor %}
+  <!-- Render error messages, if needed -->
+  {% for message in messages %}
+    <div class="alert alert-success">
+      <a class="close" href="#" data-dismiss="alert">×</a>
+          {{ message }}
+    </div>
+  {% endfor %}
 </div>
-
 
 {% endblock %}

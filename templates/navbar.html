@@ -1,5 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
 	<div class="container-fluid">
+		<!-- Navbar heading -->
 		<a class="navbar-brand" href="/">Pawsitivity</a>
 		<button
 			class="navbar-toggler"
@@ -12,6 +13,8 @@
 		>
 			<span class="navbar-toggler-icon"></span>
 		</button>
+
+		<!-- Navbar links -->
 		<div class="collapse navbar-collapse" id="navbarNav">
 			<ul class="navbar-nav">
 				<li class="nav-item">
@@ -26,6 +29,7 @@
 				<li class="nav-item">
 					<a class="nav-link" href="{% url 'index' %}">Store</a>
 				</li>
+
 				<li class="nav-item">
 					{% if request.user.is_authenticated %}
 					<div class="btn-nav">
@@ -36,7 +40,9 @@
 							Logout
 						</a>
 					</div>
+
 					{% else %}
+
 					<div class="btn-nav">
 						<a
 							class="btn btn-primary btn-small navbar-btn"
@@ -51,18 +57,3 @@
 		</div>
 	</div>
 </nav>
-
-<!--
-<script>
-	$(document).ready(function () {
-		$(".mr-auto .nav-item").bind("click", function (event) {
-			event.preventDefault();
-			var clickedItem = $(this);
-			$(".mr-auto .nav-item").each(function () {
-				$(this).removeClass("active");
-			});
-			clickedItem.addClass("active");
-		});
-	});
-</script>
--->

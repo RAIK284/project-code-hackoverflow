@@ -15,25 +15,23 @@ def get_image_path(profile, filename):
 
 def set_user_points(num_points):
     """
-    Function to be run once ever 24 hours that resets points for all users to 100
+    Function to be run once every 24 hours that resets points for all users.
 
     :param num_points - number of points to give each user
     """
-    allProfiles = Profile.objects.all()
-    for profile in allProfiles:
+    all_profiles = Profile.objects.all()
+    for profile in all_profiles:
         profile.points = num_points
         profile.save()
     
-
 class Profile(models.Model):
     """Model controlling a user's profile data."""
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    
-    def __str__(self):
-        return self.user.name
     bio = models.TextField(max_length=200, null=True, blank=True)
     image = models.ImageField(upload_to=get_image_path, null=True)
     wallet = models.IntegerField(default=0)
+
+    # Note: lowerCamelCase is standard for django model field naming
     displayPoints = models.BooleanField(default=False)
     points = models.IntegerField(default=0) # Represents points to send to users, specifically
     allTimePoints = models.IntegerField(default=0)
@@ -42,7 +40,7 @@ class Profile(models.Model):
 
     def _has_sent_message_recently(self, time_to_check: timedelta) -> bool:
         """
-        Checks if a user has sent a message (in any conversation) in the last <time_to_check> set of time.
+        Checks if a user has sent a message (in any conversation) in the last `time_to_check` set of time.
 
         :param time_to_check - the max. amount of time that define "recent"
         :return True if the user has sent a message recently, False if not
@@ -120,10 +118,3 @@ class Message(models.Model):
 
     def __str__(self):
         return self.body[:50]
-
-class Token(models.Model):
-    """Model to store data on what tokens are worth which values."""
-    points = models.IntegerField()
-
-    # Track the emoji/emoticon used
-    tag = models.CharField(max_length=7)

@@ -1,9 +1,9 @@
 {% extends 'main.html' %} {% block content %} {% load emoji_tags %}
 <head>
+	<!-- Scripts for emoji handling -->
 	<script
 		src="https://cdn.tiny.cloud/1/tk29zolrf951wd9vs5320xksjrmqle7n0chxq2h7ak419npc/tinymce/5/tinymce.min.js"
-		referrerpolicy="origin"
-	></script>
+		referrerpolicy="origin"></script>
 	<script>
 		tinymce.init({
 			selector: "#body",
@@ -19,15 +19,16 @@
 
 <style>
 	#tips {
+		background: #5bc0de;
 		border-radius: 15px;
-  		background: #5bc0de;
-  		padding: 15px;
 		font-size: 15px;
 		max-width: 600px;
+  		padding: 15px;
 	}
 </style>
 
 <div class="container-fluid" style="font-size:25px;">
+	<!-- List convo members -->
 	<div class="mt-3 mb-3">
 		<h1>Members:</h1>
 		<h2 class="ml-3">
@@ -39,7 +40,9 @@
 	</div>
 
 	{% for message in messages %}
-	<div class="p-3 mb-2 rounded rounded-3"
+	<!-- Change message color based on if user sent it -->
+	<div
+		class="p-3 mb-2 rounded rounded-3"
 		{% if message.sender.first_name == first_name %}
 		style="background-color:#2a9d8f; color:white;"
 		{% else %}
@@ -47,10 +50,11 @@
 		{% endif %}
 	>
 		{% if message.sender.first_name == first_name %}
-			<p class="text-right">You: {{ message.body|emoji_replace|emoji_replace }}</p>
+			<p class="text-right">You: {{ message.body|emoji_replace|emoji_replace }}</p> <!-- The {} has the format needed for emojis to render -->
 			<p class="text-right">Points: {{ message.points }}</p>
 		{% else %}
 			<p>
+				<!-- Link to sender's profile -->
 				<a href="{% url 'profile' message.sender.id %}" style="font-style:italic;">
 					@{{ message.sender.username }}
 				</a>
@@ -61,6 +65,7 @@
 	</div>
 	{% endfor %}
 
+	<!-- Send message -->
 	<div>
 		{% if request.user.is_authenticated %}
 		<p id='tips'>
