@@ -50,7 +50,7 @@
         {% for user, points in subset1 %}
         <div class="row text-center">
             <div class="col-8 border border-dark rounded bg-white user-panel">
-                <a href="{% url 'profile' user.id %}" style="font-size: 20px">{{ user.username }}</a>
+                <a href="{% url 'profile' user.id %}" style="font-size:20px">{{ user.username }}</a>
             </div>
 
             <div class="col-2 border border-dark rounded bg-white point-panel">
@@ -63,7 +63,7 @@
         {% for user, points in subset2 %}
         <div class="row text-center">
             <div class="col-8 border border-dark rounded bg-info user-panel text-white">
-                <a href="{% url 'profile' user.id %}" style="font-size: 20px">{{ user.username }}</a>
+                <a href="{% url 'profile' user.id %}" style="font-size:20px; color:white;">{{ user.username }}</a>
             </div>
 
             <div class="col-2 border border-dark rounded bg-info point-panel text-white">

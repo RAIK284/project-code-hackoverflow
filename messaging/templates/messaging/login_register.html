@@ -47,7 +47,7 @@
 
 {% elif page == 'updateProfile' %}
 
-<div class="container-fluid mt-5 text-center">
+<div class="container-fluid mt-5">
   <form method="POST" action="" enctype='multipart/form-data'>
     {% csrf_token %} 
     
@@ -63,7 +63,7 @@
 
 {% elif page == 'changePassword' %}
 
-<div class="container-fluid mt-5 text-center">
+<div class="container-fluid mt-5">
   <form method="POST" action="">
     {% csrf_token %}
 
@@ -75,7 +75,7 @@
 {% else %}
 
 <!-- Create User/Profile -->
-<div class="container-fluid mt-5 text-center">
+<div class="container-fluid mt-5">
   <form class="mb-3" method="POST" action="" enctype='multipart/form-data'>
     {% csrf_token %} 
     

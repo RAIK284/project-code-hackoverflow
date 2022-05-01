@@ -1,24 +1,7 @@
 # HackOverflow - Pawsitivity
-
-## Running the Code
-
-1. Open up your terminal in VS Code (Terminal -> New Terminal)
-
-- `python manage.py makemigrations`
-- `python manage.py migrate`
-  - If you're working on the front-end, these should likely not do anythin
-- `python manage.py runserver`
-
-2. Now you should be able to open a browser window and go to `localhost:8000`
-3. As you update your code, the browser will automatically update (unless it has a major issue)
-4. Make sure you stop the server when you're done! The easy way is going back to the terminal and pressing either CTRL-C or CMD-C
-
-## Configuring Dev. Environment
-
-Since the project uses postgreSQL, there is a bit more setup required on the dev side to properly configure the environment.
-
-### postgreSQL Setup
-
+## Deployment Steps
+### Configuring Dev. Environment
+#### postgreSQL Setup
 1. Install postgreSQL (if not already installed): https://www.postgresql.org/download/
    - Default settings are ok (and preferred)
    - Password is up to you to create and remember
@@ -33,15 +16,24 @@ Since the project uses postgreSQL, there is a bit more setup required on the dev
      - `GRANT ALL PRIVILEGES ON DATABASE hoverflowdb TO admin;`
      - Then you're done, so enter `\q` to exit the shell
 
-### Python Package Setup
-
-3. Install all the packages using:
+#### Python Package Setup
+1. While in the project directory, install all the packages using:
    - `pip install -r requirements.txt` (Windows)
    - `pip3 install -r requirements.txt` (Mac)
-4. Run `python manage.py migrate` from the shell and you should be good to go!
+
+If running the code gives an error for lacking a package, simply run `pip install <PACKAGE_NAME>` (or `pip3` on Mac)
+
+### Running the Code
+1. Open up your terminal while in the project directory. We need to initialize the django models to our postgreSQL database:
+- Note: replace `python` with `python3` if on Mac (on all relevant steps)
+- `python manage.py makemigrations messaging`
+- `python manage.py makemigrations store`
+- `python manage.py migrate`
+- `python manage.py runserver`
+2. Now you should be able to open a browser window and go to `localhost:8000`
+4. Make sure you stop the server when you're done! The easy way is going back to the terminal and pressing either CTRL-C or CMD-C
 
 ## Editing SQL Database to match new migrations
-
 If you pull in main or switch to a new branch, chances are that there will be migrations to make that will conflict with your local database's structure. The easiest way to fix that is just deleting your database and remaking it from scratch.
 
 1. Log into shell with your main account (postgres is the default username)
@@ -58,15 +50,10 @@ If you pull in main or switch to a new branch, chances are that there will be mi
 8. Run `python manage.py runserver` and you're good to go!
 
 ## Testing
-
 ### Writing Tests
-
 Recommend following: https://docs.djangoproject.com/en/4.0/intro/tutorial05/
-
 ### Running Tests
-
 `python manage.py test <APP_NAME>`
-
 - Note: you might get this error: `Got an error creating the test database: permission denied to create database`
   - Log into sql shell under your root (main) account.
   - Add the createdb permission to our 'admin' user:

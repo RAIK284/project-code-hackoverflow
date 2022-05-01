@@ -25,6 +25,11 @@
 		max-width: 600px;
   		padding: 15px;
 	}
+
+	.timestamp {
+		font-style: italic;
+		font-size: 15px;
+	}
 </style>
 
 <div class="container-fluid" style="font-size:25px;">
@@ -50,17 +55,19 @@
 		{% endif %}
 	>
 		{% if message.sender.first_name == first_name %}
-			<p class="text-right">You: {{ message.body|emoji_replace|emoji_replace }}</p> <!-- The {} has the format needed for emojis to render -->
+			<!-- The {} has the format needed for emojis to render -->
+			<p class="text-right">You: {{ message.body|emoji_replace|emoji_replace }}</p>
+
 			<p class="text-right">Points: {{ message.points }}</p>
+			<p class="text-right timestamp">{{ message.created }}</p>
 		{% else %}
 			<p>
 				<!-- Link to sender's profile -->
 				<a href="{% url 'profile' message.sender.id %}" style="font-style:italic;">
-					@{{ message.sender.username }}
-				</a>
-				: {{ message.body|emoji_replace }}
+				@{{ message.sender.username }}</a>: {{ message.body|emoji_replace }}
 			</p>
 			<p>Points: {{ message.points }}</p>
+			<p class="timestamp">{{ message.created }}</p>
 		{% endif %}
 	</div>
 	{% endfor %}
