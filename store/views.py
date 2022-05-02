@@ -33,7 +33,7 @@ def buy_page(request, pk):
     """View that actually lets a user buy a product."""
     NUM_BUYERS_SHOW = 3
     product = Product.objects.get(id=pk)
-    buyer = Profile.objects.get(user = request.user)
+    buyer = Profile.objects.get(user=request.user)
     recent_purchasers = Purchase.objects.filter(product = product).values('buyer').order_by('-timestamp')[:NUM_BUYERS_SHOW]
 
     user_names = []
@@ -44,7 +44,7 @@ def buy_page(request, pk):
     context = {'product': product, 'recent_purchasers': user_names}
     if request.method == 'GET':
         # Check if user already owns product
-        if Purchase.objects.filter(buyer=buyer).filter(product=product) is not None:
+        if Purchase.objects.filter(buyer=buyer).filter(product=product):
             messages.error(request,'Already purchased item')
         elif (buyer.wallet - product.point_cost) >= 0:
             Product.objects.filter(id=product.id).update(amount_sold=(product.amount_sold + 1))

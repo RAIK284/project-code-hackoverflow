@@ -8,7 +8,7 @@
 	}
 
 	.side-panel {
-		margin-top: 15%;
+		margin-top: 5%;
 	}
 </style>
 
@@ -24,10 +24,10 @@
 				{% for purchase in purchases %}
 				<div class="py-3 overflow-auto">
 					<img
-						class="z-depth-2 img-fluid"
+						class="rounded-circle z-depth-2 img-fluid"
 						alt="Image of purchase: {{ purchase.product.name }}"
 						src="{{ purchase.product.image.url }}"
-						style="max-height: 100px; max-width: 100px;"
+						style="height: 70px; width: 70px;"
 					/>
 				</div>
 				{% endfor %}

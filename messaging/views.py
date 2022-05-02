@@ -109,8 +109,6 @@ def register_user_page(request):
 
             login(request, user)
             return redirect('inbox')
-        else:
-            messages.error(request, 'An error occured during registration')
 
     context = {'form': form, 'page': page}
     return render(request, 'messaging/login_register.html', context)
@@ -250,7 +248,7 @@ def leaderboard(request):
     """View for the global leaderboard."""
     # Get only the top users that have their points public
     NUM_USERS_TO_SHOW = 10
-    user_points = Profile.objects.filter(displayPoints=True).values('allTimePoints', 'user').order_by('-allTimePoints')[:NUM_USERS_TO_SHOW]
+    user_points = Profile.objects.filter(displayPoints=True).values('allTimePoints', 'user').order_by('-allTimePoints', 'user__username')[:NUM_USERS_TO_SHOW]
     # Prepare data for each user on the leaderboard
     users = []
     points = []
