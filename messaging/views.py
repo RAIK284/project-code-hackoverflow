@@ -43,7 +43,8 @@ def send_points(new_message: Message, members: list[User], convo: Conversation, 
     points_to_send = 0
     if sender.profile.points < total_points:
         # Will send 0 points
-        points_to_send = sender.profile.points
+        points_to_send = 0
+        return
     else:
         points_to_send = total_points
 
