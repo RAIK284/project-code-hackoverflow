@@ -33,6 +33,16 @@ If running the code gives an error for lacking a package, simply run `pip instal
 2. Now you should be able to open a browser window and go to `localhost:8000`
 4. Make sure you stop the server when you're done! The easy way is going back to the terminal and pressing either CTRL-C or CMD-C
 
+### Adding Content
+Adding profiles:
+1. Navigate the site as a normal user, and create an account.
+2. Once your account is created, go to your profile page to edit your profile information.
+
+Adding products:
+1. In the python terminal, run: `python manage.py createsuperuser`. Enter the information you'd like for an 'admin' account.
+2. Navigate to `localhost:8000/admin`, and login using your new admin credentials.
+3. Find the Product model, and click "Add" - now you can add products to populate the store page!
+
 ## Editing SQL Database to match new migrations
 If you pull in main or switch to a new branch, chances are that there will be migrations to make that will conflict with your local database's structure. The easiest way to fix that is just deleting your database and remaking it from scratch.
 
