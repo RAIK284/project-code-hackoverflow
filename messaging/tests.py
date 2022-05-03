@@ -35,7 +35,7 @@ def create_message(sender: Profile, convo: Conversation, body: str) -> Message:
     """
     return Message.objects.create(sender=sender.user, conversation=convo, body=body)
 
-def create_profile(username: str, first_name: str, last_name: str, display_points: bool, points: int, display_purchases: bool=False, password: str='YuR46aeZR', email: str='user@email.com') -> Profile:
+def create_profile(username: str, first_name: str, last_name: str, display_points: bool, points: int=0, all_time_points: int=0, display_purchases: bool=False, password: str='YuR46aeZR', email: str='user@email.com') -> Profile:
     """
     Helper function that creates a profile for a user.
 
@@ -44,12 +44,13 @@ def create_profile(username: str, first_name: str, last_name: str, display_point
     :param last_name - user's last name
     :param display_points - whether or not the profile's points are public
     :param points - the number of points for the user
+    :param all_time_points - the number of all time points for the user
     :param display_purchases - (optional) whether or not the profile's purchases are public
     :param password - (optional) the user's password
     :return the created Profile
     """
     user = User.objects.create_user(username=username, password=password, email=email, first_name=first_name, last_name=last_name)
-    return Profile.objects.create(user=user, displayPoints=display_points, points=points, displayPurchases=display_purchases) 
+    return Profile.objects.create(user=user, displayPoints=display_points, points=points, allTimePoints=all_time_points, displayPurchases=display_purchases) 
 
 def get_user_full_name(profile: Profile) -> str:
     """
@@ -71,10 +72,7 @@ class ProfileCreateFormTests(TestCase):
             'password2': 'YuR46aeZR',
             'first_name': 'Leslie',
             'last_name': 'Knope',
-            'email': 'lknope@pawnee.com',
-            'bio': 'Head of Pawnee Parks & Rec!',
-            'make_my_points_public': True,
-            'make_my_purchases_public': True
+            'email': 'lknope@pawnee.com'
         }
 
         form = ProfileCreateForm(data=form_data)
@@ -89,10 +87,7 @@ class ProfileCreateFormTests(TestCase):
             'password2': 'YuR46aeZR',
             'first_name': 'Leslie',
             'last_name': 'Knope',
-            'email': 'lknope@pawnee.com',
-            'bio': 'Head of Pawnee Parks & Rec!',
-            'make_my_points_public': True,
-            'make_my_purchases_public': True
+            'email': 'lknope@pawnee.com'
         }
 
         form = ProfileCreateForm(data=form_data)
@@ -104,30 +99,6 @@ class ProfileCreateFormTests(TestCase):
             actual_user.email == form_data['email']
 
         self.assertTrue(user_correct, msg="Expected the right user to be made if all the fields are valid, but failed.")
-
-    def test_profile_create_form_valid_save_profile(self):
-        """Tests that the profile create form can be filled properly and save a new profile correctly."""
-        # Note: username, password1, and password2 all extra required for User creation
-        form_data = {
-            'username': 'lknope',
-            'password1': 'YuR46aeZR',
-            'password2': 'YuR46aeZR',
-            'first_name': 'Leslie',
-            'last_name': 'Knope',
-            'email': 'lknope@pawnee.com',
-            'bio': 'Head of Pawnee Parks & Rec!',
-            'make_my_points_public': True,
-            'make_my_purchases_public': True
-        }
-
-        form = ProfileCreateForm(data=form_data)
-        _, actual_profile = form.save(commit=False)
-        profile_correct = \
-            actual_profile.bio == form_data['bio'] and \
-            actual_profile.displayPoints == form_data['make_my_points_public'] and \
-            actual_profile.displayPurchases == form_data['make_my_purchases_public']
-
-        self.assertTrue(profile_correct, msg="Expected the right user to be made if all the fields are valid, but failed.")
 
     def test_profile_create_form_invalid_empty_fields(self):
         """Tests that the form is invalid with empty fields."""
@@ -145,6 +116,9 @@ class ProfileCreateFormTests(TestCase):
 
         form = ProfileCreateForm(data=form_data)
         self.assertFalse(form.is_valid(), msg="Expected the form to be invalid with missing data, but it was marked valid.")
+
+class ProfileUpdateFormTests(TestCase):
+    pass
 
 # Model Tests
 class ProfileModelTests(TestCase):
@@ -198,8 +172,8 @@ class ConversationViewTests(TestCase):
 
     def test_convo_one_message_msg_returned(self):
         """Tests that the right message is returned from a conversation with one message."""
-        profile1 = create_profile("mscott", "Michael", "Scott", True, 0)
-        profile2 = create_profile("dschrute", "Dwight", "Schrute", False, 0)
+        profile1 = create_profile("mscott", "Michael", "Scott", True)
+        profile2 = create_profile("dschrute", "Dwight", "Schrute", False)
         convo = create_convo("mscott-dschrute", [profile1, profile2])
         expected_msg = create_message(profile1, convo, "Hi Dwight!")
 
@@ -214,8 +188,8 @@ class ConversationViewTests(TestCase):
 
     def test_convo_one_message_name_returned(self):
         """Tests that the right first name is returned from a conversation with one message."""
-        profile1 = create_profile("mscott", "Michael", "Scott", True, 0)
-        profile2 = create_profile("dschrute", "Dwight", "Schrute", False, 0)
+        profile1 = create_profile("mscott", "Michael", "Scott", True)
+        profile2 = create_profile("dschrute", "Dwight", "Schrute", False)
         convo = create_convo("mscott-dschrute", [profile1, profile2])
         _ = create_message(profile1, convo, "Hi Dwight!")
 
@@ -230,8 +204,8 @@ class ConversationViewTests(TestCase):
 
     def test_convo_one_message_members_returned(self):
         """Tests that the members are returned from a conversation with one message."""
-        profile1 = create_profile("mscott", "Michael", "Scott", True, 0)
-        profile2 = create_profile("dschrute", "Dwight", "Schrute", False, 0)
+        profile1 = create_profile("mscott", "Michael", "Scott", True)
+        profile2 = create_profile("dschrute", "Dwight", "Schrute", False)
         convo = create_convo("mscott-dschrute", [profile1, profile2])
         _ = create_message(profile1, convo, "Hi Dwight!")
 
@@ -240,14 +214,14 @@ class ConversationViewTests(TestCase):
         response = self.client.get(reverse('conversation', args=[convo.id]))
         self.assertQuerysetEqual(
             response.context['members'],
-            [profile2.user.get_full_name(), profile1.user.get_full_name()],
+            [profile2.user, profile1.user],
             msg=f"Expected the members in a conversation with name {convo.name} to be returned when {profile1.user.username} is logged in, but failed."
         )
 
     def test_convo_several_messages_msgs_returned(self):
         """Tests that the right messages are returned from a conversation with multiple messages."""
-        profile1 = create_profile("mscott", "Michael", "Scott", True, 0)
-        profile2 = create_profile("dschrute", "Dwight", "Schrute", False, 0)
+        profile1 = create_profile("mscott", "Michael", "Scott", True)
+        profile2 = create_profile("dschrute", "Dwight", "Schrute", False)
         convo = create_convo("mscott-dschrute", [profile1, profile2])
         expected_msg1 = create_message(profile1, convo, "Hi Dwight!")
         expected_msg2 = create_message(profile2, convo, "Hello Michael.")
@@ -260,6 +234,37 @@ class ConversationViewTests(TestCase):
             [expected_msg1, expected_msg2],
             msg=f"Expected the messages in a conversation with name {convo.name} to be returned when {profile1.user.username} is logged in, but failed."
         )
+
+    def test_convo_two_users_send_points_receives_properly(self):
+        """Tests that a user can send points to another user."""
+        profile1 = create_profile("mscott", "Michael", "Scott", True, points=30)
+        profile2 = create_profile("dschrute", "Dwight", "Schrute", False)
+        convo = create_convo("mscott-dschrute", [profile1, profile2])
+
+        data = {
+            'body': "Hi Dwight! 🐶 xoxoxo"
+        }
+
+        # Post the message, which sends the points
+        self.client.force_login(profile1.user)
+        _ = self.client.post(reverse('conversation', args=[convo.id]), data)
+        profile2.refresh_from_db()
+
+        expected_points = 10
+        self.assertEqual(profile2.allTimePoints, expected_points,
+        f"Expected sending a token in a message to give {expected_points} points, but the recipient has {profile2.allTimePoints} instead.")
+
+    def test_convo_two_users_send_points_subtracts_properly(self):
+        """Tests that a user's points is deducted when they send to another user."""
+        pass
+
+    def test_convo_two_users_send_points_not_enough(self):
+        """Tests that a user can't send points to another user if they don't have enough."""
+        pass
+
+    def test_convo_three_users_points_spread_equally(self):
+        """Tests that two users receive half the total amount of points that should be sent."""
+        pass
 
 class InboxViewTests(TestCase):
     def test_inbox_no_display_no_convos(self):
@@ -341,41 +346,40 @@ class LeaderboardViewTests(TestCase):
     def test_leaderboard_no_users(self):
         """Tests that the leaderboard displays no profiles when none exist."""
         response = self.client.get(reverse('leaderboard'))
-        self.assertQuerysetEqual(response.context['users'], [], msg="Leaderboard displays profiles when none were expected.")
+        self.assertQuerysetEqual(response.context['user_data'], [], msg="Leaderboard displays profiles when none were expected.")
 
     def test_leaderboard_one_user_private(self):
         """Tests that the leaderboard displays no profiles when one has private data."""
-        _ = create_profile("jsmith", "John", "Smith", display_points=False, points=10)
+        _ = create_profile("jsmith", "John", "Smith", display_points=False)
 
         response = self.client.get(reverse('leaderboard'))
-        self.assertQuerysetEqual(response.context['users'], [], msg=f"Leaderboard displayed {response.context['users']}, when no public users were expected.")
+        self.assertQuerysetEqual(response.context['user_data'], [], msg=f"Leaderboard displayed {response.context['user_data']}, when no public users were expected.")
     
     def test_leaderboard_one_user_public(self):
         """Tests that the leaderboard displays the sole profile with public data."""
-        profile = create_profile("jsmith", "John", "Smith", True, 10)
-        user_full_name = get_user_full_name(profile)
-        expected_user_data = [(user_full_name, profile.points)]
+        profile = create_profile("jsmith", "John", "Smith", True)
+        expected_user_data = [(profile.user, profile.allTimePoints)]
 
         response = self.client.get(reverse('leaderboard'))
         self.assertQuerysetEqual(
-            response.context['users'],
+            response.context['user_data'],
             expected_user_data,
-            msg=f"Leaderboard displayed {response.context['users']}, when only one public user was expected: {expected_user_data}."
+            msg=f"Leaderboard displayed {response.context['user_data']}, when only one public user was expected: {expected_user_data}."
         )
 
     def test_leaderboard_several_users_mix(self):
         """Tests that the leaderboard only shows public profiles and orders them by points descending."""
-        public1 = create_profile("public1", "Public", "One", display_points=True, points=10)
-        public2 = create_profile("public2", "Public", "Two", display_points=True, points=20)
-        _ = create_profile("private1", "Private", "One", display_points=False, points=30)
+        public1 = create_profile("public1", "Public", "One", display_points=True, all_time_points=10)
+        public2 = create_profile("public2", "Public", "Two", display_points=True, all_time_points=30)
+        _ = create_profile("private1", "Private", "One", display_points=False, all_time_points=20)
         
-        expected_user_data = [(get_user_full_name(public2), public2.points), (get_user_full_name(public1), public1.points)]
+        expected_user_data = [(public2.user, public2.allTimePoints), (public1.user, public1.allTimePoints)]
 
         response = self.client.get(reverse('leaderboard'))
         self.assertQuerysetEqual(
-            response.context['users'],
+            response.context['user_data'],
             expected_user_data,
-            msg=f"Leaderboard displayed {response.context['users']}, when only the public profiles {expected_user_data} were expected."
+            msg=f"Leaderboard displayed {response.context['user_data']}, when only the public profiles {expected_user_data} were expected."
         )
 
     def test_leaderboard_several_users_overflow(self):
@@ -384,17 +388,18 @@ class LeaderboardViewTests(TestCase):
 
         public_profiles = []
         for i in range(NUM_USERS_TO_SHOW + 3):
-            public_profiles.append(create_profile(f"public{i}", "Public", f"{i}", display_points=True, points=(i * 10)))
+            new_profile = create_profile(f"public{i}", "Public", f"{i}", display_points=True, all_time_points=(i*10))
+            public_profiles.append(new_profile)
         
         # Add the profiles to the expected data in descending order
         profiles_to_show = public_profiles[3:]
         expected_user_data = []
         for profile in profiles_to_show:
-            expected_user_data.insert(0, (get_user_full_name(profile), profile.points))
+            expected_user_data.insert(0, (profile.user, profile.allTimePoints))
 
         response = self.client.get(reverse('leaderboard'))
         self.assertQuerysetEqual(
-            response.context['users'],
+            response.context['user_data'],
             expected_user_data,
-            msg=f"Leaderboard displayed {len(response.context['users'])} when only {NUM_USERS_TO_SHOW} were expected."
+            msg=f"Leaderboard did not display the 10 expected users."
         )

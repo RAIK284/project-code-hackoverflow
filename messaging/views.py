@@ -30,13 +30,12 @@ def get_points(body: str) -> int:
 
     return points
 
-def send_points(new_message: Message, members: list[User], convo: Conversation, sender: User) -> None:
+def send_points(new_message: Message, members: list[User], sender: User) -> None:
     """
     Helper function to send points from the sender user to all the other members of a conversation.
 
     :param newMessage - the new message being sent
     :param members - all of the users in the conversation
-    :param convo - the Conversation
     :param sender - the user sending the message
     """
     total_points = new_message.points * (len(members) - 1)
@@ -47,15 +46,16 @@ def send_points(new_message: Message, members: list[User], convo: Conversation, 
     else:
         points_to_send = total_points
 
-    Profile.objects.filter(user=sender).update(points=(sender.profile.points - points_to_send))
-
-    for member in convo.userGroup.members.all():
+    sender.profile.points -= points_to_send
+    sender.profile.save(update_fields=['points'])
+    for member in members:
         if member.username != sender.username:
             # Distribute points fractionally across users - update users' wallets and point totals
             new_points = (int) (points_to_send / (len(members) - 1))
 
-            Profile.objects.filter(user=member).update(wallet=(member.profile.wallet + new_points),\
-                                                       allTimePoints=(member.profile.allTimePoints + new_points))
+            member.profile.wallet += new_points
+            member.profile.allTimePoints += new_points
+            member.profile.save(update_fields=['wallet', 'allTimePoints'])
     
 def login_page(request):
     """View for the site's login page."""
@@ -156,7 +156,7 @@ def conversation(request, pk):
     messages = Message.objects.filter(conversation=convo)
     members = []
     for member in convo.userGroup.members.all():
-        members.append(member.get_full_name())
+        members.append(member)
 
     if request.method == 'POST':
         new_message = Message.objects.create(
@@ -166,7 +166,7 @@ def conversation(request, pk):
             points=get_points(request.POST.get('body')[3:-4].replace("&nbsp;", "")),
         )
         
-        send_points(new_message, members, convo, new_message.sender)
+        send_points(new_message, members, new_message.sender)
         return redirect('conversation', pk=convo.id)
 
     first_name = request.user.first_name

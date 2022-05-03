@@ -8,7 +8,8 @@ from messaging.models import Profile
 
 def index(request):
     """View for the main page of products."""
-    products = Product.objects.all()
+    # Order by popularity
+    products = Product.objects.all().order_by('-amount_sold', 'name')
 
     context = {'products': products}
     return render(request, 'store/index.html', context)
@@ -18,7 +19,7 @@ def buy(request, pk):
     """View for an individual product."""
     NUM_BUYERS_SHOW = 3
     product = Product.objects.get(id=pk)
-    recent_purchasers = Purchase.objects.filter(product = product).values('buyer').order_by('-timestamp')[:NUM_BUYERS_SHOW]
+    recent_purchasers = Purchase.objects.filter(product=product).values('buyer').order_by('-timestamp')[:NUM_BUYERS_SHOW]
 
     user_names = []
     for obj in recent_purchasers:
@@ -34,7 +35,7 @@ def buy_page(request, pk):
     NUM_BUYERS_SHOW = 3
     product = Product.objects.get(id=pk)
     buyer = Profile.objects.get(user=request.user)
-    recent_purchasers = Purchase.objects.filter(product = product).values('buyer').order_by('-timestamp')[:NUM_BUYERS_SHOW]
+    recent_purchasers = Purchase.objects.filter(product=product).values('buyer').order_by('-timestamp')[:NUM_BUYERS_SHOW]
 
     user_names = []
     for obj in recent_purchasers:
