@@ -48,13 +48,16 @@ def buy_page(request, pk):
         if Purchase.objects.filter(buyer=buyer).filter(product=product):
             messages.error(request,'Already purchased item')
         elif (buyer.wallet - product.point_cost) >= 0:
-            Product.objects.filter(id=product.id).update(amount_sold=(product.amount_sold + 1))
+            product.amount_sold += 1
+            product.save(update_fields=['amount_sold'])
+
             Purchase.objects.create(
                 buyer=buyer,
                 product=product
             )
         
-            Profile.objects.filter(user=request.user).update(wallet=(buyer.wallet - product.point_cost))
+            buyer.wallet -= product.point_cost
+            buyer.save(update_fields=['wallet'])
             return redirect('index')
         else:
             messages.error(request,'Not enough points')

@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 from freezegun import freeze_time
 
-from .forms import ProfileCreateForm
+from .forms import ProfileCreateForm, ProfileUpdateForm
 from .models import Conversation, Message, Profile, UserGroup
 
 # Helper Functions
@@ -43,10 +43,11 @@ def create_profile(username: str, first_name: str, last_name: str, display_point
     :param first_name - user's first name
     :param last_name - user's last name
     :param display_points - whether or not the profile's points are public
-    :param points - the number of points for the user
-    :param all_time_points - the number of all time points for the user
+    :param points - (optional) the number of points for the user
+    :param all_time_points - (optional) the number of all time points for the user
     :param display_purchases - (optional) whether or not the profile's purchases are public
     :param password - (optional) the user's password
+    :param email - (optional) the user's email
     :return the created Profile
     """
     user = User.objects.create_user(username=username, password=password, email=email, first_name=first_name, last_name=last_name)
@@ -118,7 +119,45 @@ class ProfileCreateFormTests(TestCase):
         self.assertFalse(form.is_valid(), msg="Expected the form to be invalid with missing data, but it was marked valid.")
 
 class ProfileUpdateFormTests(TestCase):
-    pass
+    def test_profile_update_form_all_valid_fields(self):
+        """Tests that the profile update form can be filled properly."""
+        _ = create_profile('lknope', 'Leslie', 'Knope', False)
+
+        form_data = {
+            'bio': 'Head of Pawnee Parks & Rec!',
+            'image': None,
+            'displayPoints': True,
+            'displayPurchases': True
+        }
+
+        form = ProfileUpdateForm(data=form_data)
+        self.assertTrue(form.is_valid(), msg="Expected the form to be valid if all the fields are valid, but failed.")
+
+    def test_profile_update_form_valid_save_user(self):
+        """Tests that the profile update form can be filled properly and save a new user correctly."""
+        _ = create_profile('lknope', 'Leslie', 'Knope', False)
+
+        form_data = {
+            'bio': 'Head of Pawnee Parks & Rec!',
+            'image': None,
+            'displayPoints': True,
+            'displayPurchases': True
+        }
+
+        form = ProfileUpdateForm(data=form_data)
+        actual_profile = form.save(commit=False)
+        profile_correct = \
+            actual_profile.bio == form_data['bio'] and \
+            actual_profile.image == form_data['image'] and \
+            actual_profile.displayPoints == form_data['displayPoints'] and \
+            actual_profile.displayPurchases == form_data['displayPurchases']
+
+        self.assertTrue(profile_correct, msg="Expected the profile to be updated if all the fields are valid, but failed.")
+
+    def test_profile_update_form_empty_fields(self):
+        """Tests that the profile update form still works with empty fields."""
+        form = ProfileUpdateForm(data={})
+        self.assertTrue(form.is_valid(), msg="Expected the form to work with no data, but it was marked valid.")
 
 # Model Tests
 class ProfileModelTests(TestCase):
@@ -235,8 +274,8 @@ class ConversationViewTests(TestCase):
             msg=f"Expected the messages in a conversation with name {convo.name} to be returned when {profile1.user.username} is logged in, but failed."
         )
 
-    def test_convo_two_users_send_points_receives_properly(self):
-        """Tests that a user can send points to another user."""
+    def test_convo_two_users_send_points_updates_alltime(self):
+        """Tests that a user can send points to another user and update the other's all time points."""
         profile1 = create_profile("mscott", "Michael", "Scott", True, points=30)
         profile2 = create_profile("dschrute", "Dwight", "Schrute", False)
         convo = create_convo("mscott-dschrute", [profile1, profile2])
@@ -254,17 +293,84 @@ class ConversationViewTests(TestCase):
         self.assertEqual(profile2.allTimePoints, expected_points,
         f"Expected sending a token in a message to give {expected_points} points, but the recipient has {profile2.allTimePoints} instead.")
 
+    def test_convo_two_users_send_points_updates_wallet(self):
+        """Tests that a user can send points to another user and update the other's wallet."""
+        profile1 = create_profile("mscott", "Michael", "Scott", True, points=30)
+        profile2 = create_profile("dschrute", "Dwight", "Schrute", False)
+        convo = create_convo("mscott-dschrute", [profile1, profile2])
+
+        data = {
+            'body': "Hi Dwight! 🐶 xoxoxo"
+        }
+
+        # Post the message, which sends the points
+        self.client.force_login(profile1.user)
+        _ = self.client.post(reverse('conversation', args=[convo.id]), data)
+        profile2.refresh_from_db()
+
+        expected_points = 10
+        self.assertEqual(profile2.wallet, expected_points,
+        f"Expected sending a token in a message to give {expected_points} points in the wallet, but the recipient has {profile2.wallet} in their wallet instead.")
+
     def test_convo_two_users_send_points_subtracts_properly(self):
         """Tests that a user's points is deducted when they send to another user."""
-        pass
+        profile1 = create_profile("mscott", "Michael", "Scott", True, points=30)
+        profile2 = create_profile("dschrute", "Dwight", "Schrute", False)
+        convo = create_convo("mscott-dschrute", [profile1, profile2])
+
+        data = {
+            'body': "Hi Dwight! 🐶 xoxoxo"
+        }
+
+        # Post the message, which sends the points
+        self.client.force_login(profile1.user)
+        _ = self.client.post(reverse('conversation', args=[convo.id]), data)
+        profile1.refresh_from_db()
+
+        expected_points = 20
+        self.assertEqual(profile1.points, expected_points,
+        f"Expected sending a token in a message to leave {expected_points} points, but the sender has {profile1.points} instead.")
 
     def test_convo_two_users_send_points_not_enough(self):
         """Tests that a user can't send points to another user if they don't have enough."""
-        pass
+        profile1 = create_profile("mscott", "Michael", "Scott", True, points=5)
+        profile2 = create_profile("dschrute", "Dwight", "Schrute", False)
+        convo = create_convo("mscott-dschrute", [profile1, profile2])
+
+        data = {
+            'body': "Hi Dwight! 🐶 xoxoxo"
+        }
+
+        # Post the message, which sends the points
+        self.client.force_login(profile1.user)
+        _ = self.client.post(reverse('conversation', args=[convo.id]), data)
+        profile2.refresh_from_db()
+
+        expected_points = 0
+        self.assertEqual(profile2.allTimePoints, expected_points,
+        f"Expected sending a token in a message to give 0 points if the sender doesn't have enough points, but the receiver got {profile2.allTimePoints} instead.")
 
     def test_convo_three_users_points_spread_equally(self):
         """Tests that two users receive half the total amount of points that should be sent."""
-        pass
+        profile1 = create_profile("mscott", "Michael", "Scott", True, points=30)
+        profile2 = create_profile("dschrute", "Dwight", "Schrute", False)
+        profile3 = create_profile("jhalpert", "Jim", "Halpert", False)
+        convo = create_convo("mscott-dschrute-jhalpert", [profile1, profile2, profile3])
+
+        data = {
+            'body': "Hi Dwight and Jim! 🐶 xoxoxo"
+        }
+
+        # Post the message, which sends the points
+        self.client.force_login(profile1.user)
+        _ = self.client.post(reverse('conversation', args=[convo.id]), data)
+        profile2.refresh_from_db()
+        profile3.refresh_from_db()
+
+        expected_points = 10
+        correct_points_received = (expected_points == (int) (profile2.allTimePoints)) and (expected_points == (int) (profile3.allTimePoints))
+        self.assertTrue(correct_points_received,
+        f"Expected sending a token in a group message to give {expected_points} points per user, but the receivers have {profile2.allTimePoints} and {profile3.allTimePoints} instead.")
 
 class InboxViewTests(TestCase):
     def test_inbox_no_display_no_convos(self):

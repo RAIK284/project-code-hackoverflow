@@ -38,24 +38,18 @@ def send_points(new_message: Message, members: list[User], sender: User) -> None
     :param members - all of the users in the conversation
     :param sender - the user sending the message
     """
-    total_points = new_message.points * (len(members) - 1)
-    points_to_send = 0
-    if sender.profile.points < total_points:
+    points_to_send = new_message.points
+    if sender.profile.points < points_to_send:
         # Will send 0 points
-        points_to_send = 0
         return
-    else:
-        points_to_send = total_points
 
     sender.profile.points -= points_to_send
     sender.profile.save(update_fields=['points'])
     for member in members:
         if member.username != sender.username:
-            # Distribute points fractionally across users - update users' wallets and point totals
-            new_points = (int) (points_to_send / (len(members) - 1))
-
-            member.profile.wallet += new_points
-            member.profile.allTimePoints += new_points
+            # Distribute points across users - update users' wallets and point totals
+            member.profile.wallet += points_to_send
+            member.profile.allTimePoints += points_to_send
             member.profile.save(update_fields=['wallet', 'allTimePoints'])
     
 def login_page(request):

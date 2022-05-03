@@ -32,6 +32,7 @@
       <a href="{% url 'buy' product.id %}" class="mb-2" style="color:#2a9d8f; font-weight: bold;">{{ product.name }}</a>
       <br>
 
+      {% if product.image %}
       <img
           class="rounded-circle z-depth-2 img-fluid"
           alt="{{ product.name }} image"
@@ -39,6 +40,7 @@
           style="height: 150px; width: 150px;"
       />
       <br>
+      {% endif %}
 
       <p1>Cost: {{ product.point_cost }} points</p1>
       <br>

@@ -18,7 +18,7 @@ class Product(models.Model):
     name = models.CharField(max_length=50, unique=True)
     point_cost = models.IntegerField()
     amount_sold = models.IntegerField()
-    image = models.ImageField(upload_to=get_image_path)
+    image = models.ImageField(upload_to=get_image_path, null=True)
     
     class Meta:
         # Order items alphabetically by default

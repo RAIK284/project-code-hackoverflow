@@ -16,11 +16,14 @@
 
     <!-- Product info -->
     <h1>{{ product.name }}</h1>
+
+    {% if product.image %}
     <img class="img-fluid"
       src="{{ product.image.url }}"
       alt="image for product: {{ product.name }}"
       style="height:200px;"
     />
+    {% endif %}
 
     <p>Cost: {{ product.point_cost }} points</p>
     <p>{{ product.amount_sold }} sold</p>
