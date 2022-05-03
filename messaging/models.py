@@ -97,9 +97,6 @@ class Conversation(models.Model):
         # Show the most recently updated conversations first
         ordering = ['-updated', '-created']
 
-    def __str__(self):
-        return self.name[:50]
-
 class Message(models.Model):
     """Model controlling an individual message sent by a user."""
     sender = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -107,7 +104,6 @@ class Message(models.Model):
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
     body = models.TextField()
-    read = models.BooleanField(default=False)
 
     # Track the number of token points in the message, if applicable
     points = models.IntegerField(default=0)
