@@ -315,15 +315,15 @@ def create_convo(request):
             new_message = Message.objects.create(
                 sender=request.user,
                 conversation=convo,
-                body=request.POST.get('body')[3:-4],
-                points = get_points(request.POST.get('body')[3:-4].replace("&nbsp;", "")),
+                body=body[3:-4],
+                points = get_points(body[3:-4].replace("&nbsp;", "")),
             )
 
             members = []
             for member in convo.userGroup.members.all():
-                members.append(member.get_full_name())
+                members.append(member)
 
-            send_points(new_message, members, convo, new_message.sender)
+            send_points(new_message, members, new_message.sender)
             return redirect('conversation', pk=convo.id)
 
         except ObjectDoesNotExist:

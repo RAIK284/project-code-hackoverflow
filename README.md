@@ -63,7 +63,7 @@ If you pull in main or switch to a new branch, chances are that there will be mi
 ### Writing Tests
 Recommend following: https://docs.djangoproject.com/en/4.0/intro/tutorial05/
 ### Running Tests
-`python manage.py test <APP_NAME>`
+`python manage.py test <APP_NAME>` (in our case: `test messaging` and `test store`)
 - Note: you might get this error: `Got an error creating the test database: permission denied to create database`
   - Log into sql shell under your root (main) account.
   - Add the createdb permission to our 'admin' user:
