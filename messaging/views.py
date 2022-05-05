@@ -43,7 +43,7 @@ def send_points(new_message: Message, members: list[User], sender: User) -> None
         # Will send 0 points
         return
 
-    sender.profile.points -= points_to_send
+    sender.profile.points -= (points_to_send * (len(members) - 1))
     sender.profile.save(update_fields=['points'])
     for member in members:
         if member.username != sender.username:
@@ -316,7 +316,7 @@ def create_convo(request):
                 sender=request.user,
                 conversation=convo,
                 body=body[3:-4],
-                points = get_points(body[3:-4].replace("&nbsp;", "")),
+                points=get_points(body[3:-4].replace("&nbsp;", "")),
             )
 
             members = []
